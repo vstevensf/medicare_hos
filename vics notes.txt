@@ -1,0 +1,95 @@
+"Phys_Amount_Limit" - 1998 = 1 (Yes) 2 (No), 2020 1 (No) 2-5 (Yes)
+"Phys_Type_Limit" - 1998 = 1 (Yes) 2 (No), 2020 1 (No) 2-5 (Yes)
+"Emo_Amount_Limit" - 1998 = 1 (Yes) 2 (No), 2020 1 (No) 2-5 (Yes)
+"Emo_Carefulness" - 1998 = 1 (Yes) 2 (No), 2020 1 (No) 2-5 (Yes)
+
+"Bathing" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
+"Dressing" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
+"Eating" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
+"Chairs" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
+"Walking" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
+"Toilet" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
+
+
+Methods: The Medicare Health Outcomes Survey (HOS) Database was queried for all patients who reported a diagnosis of hip or knee arthritis in the first (1998) and latest (2020) defined cohorts. The cohorts were successfully propensity score matched for age, gender, race, education status, diabetes, hypertension, congestive heart failure, chronic obstructive pulmonary disease, and smoking status. Patients received various treatments, including non-operative and operative modalities. Chi-squared analysis was used to compare 18 components of the Veterans RAND 12 Item Health Survey (VR-12) and activities of daily living (ADL) between cohorts.   
+
+Note here -- you may want to expand on this - namely define more clearly your cohorts. Reading further down, it becomes clearer, but would be explicitly state 2 cohorts, a 1998 and a 2020 cohort. Feel free to alter my suggested change. I think already completed
+
+Results: Each matched cohort included 22,001 patients. The 2020 cohort reported lower scores than the 1998 cohort on each component of the VR-12, most notably physical and emotional health on activity level. Compared to the 1998 cohort, the 2020 cohort more frequently reported reduced daily activity (23.3% increase, p < 0.05) and more limitations in activity performance due to physical health (26.3% increase, p < 0.05) (Table 1). Patients in the 2020 cohort more frequently reported a reduced ability to bring daily activities to completion (15.0% increase, p < 0.05) and interference in social activities due to emotional health (17.1% increase, p < 0.05) (Table 2). Capacity to perform activities of daily living (ADLs), including bathing, dressing, eating, getting in and out of chairs, walking, using the toilet, was significantly diminished in the 2020 cohort relative to the 1998 cohort (p < 0.05 for all) (Table 3). 
+
+Conclusions: Despite over two decades of advancement in management of hip and knee osteoarthritis, Medicare patients with OA reported diminished physical and emotional health functioning and capacity for ADLs in 2020 relative to 1998. This population is a significant and growing cost driver for the US healthcare system – both directly through medical care and indirectly through lost productive life years and an increased caregiver burden. Our results highlight the need to improve cost-effectiveness in management of OA patients and improve delivery of operative and non-operative care to a disabled population.   
+
+7/17/24 Vic's Notes
+
+OVERALL: downtrend in PROMs (patient-reported outcome measures, specifically VR-12 and ADLs) in Medicare arthritis patients from 1998 to 2023
+
+1. Imports: dplyr/tidyr for data manipulation, readxl/writexl for reading and writing excel files, e1071 for stats, and MatchIt for propensity matching
+2. Import 1998 and 2023 HOS files (which have been reformatted from ascii txt to csv, and matched columns by question)
+3. Data cleaning and prep: handling missing values & filtering and creating relevant columns --> selected for patients with arthritis of hip or knee, narrowed down to questions from VR-12 and ADLs (TODO: total = 34)
+4. Statistics: propensity score matching to create comparable groups from the 1998 & 2023 datasets -- covariates used to estimate propensity score and categorize subject as treatment or control group = age, gender, diabetes, HTN, CHF, COPD, smoking status, and arthritis; method = nearest neighbor matching (each "treated" subject is matched to the "control" subject with the closest propensity score; exact matching variables = gender, age, arthritis (further reducing potential confounding) --> basically a) propensity score calculation based on specified covariates, b) nearest neighbor matching matches each treatment subject to a control subject with the closest propensity score, with exact matching on gender/age/arthritis, then c) creates and extracts completed matched dataset used in further analysis to estimate treatment effect while controlling for the specified covariates. MATCHING IS FOR CAUSAL INFERENCE. TODO: weird that race and education came out to p = 1 even though we didn't exact match on that....suspicious. but MRSTAT completely changed
+5. Statistics, cont.: various chi-squared tests to examine changes in demographic and health-related factors over time
+
+Final results: two data frames for both years, of patients with arthritis who filled out all the relevant questions -- sample size of each is 22,001
+
+Copy and paste last 3 lines of code for each var of interest
+
+Did we match on additional variables? Rn it's age, gender, and various comorbidities -- could be worth matching on race and educational status (so the demographics are the exact same and look at outcome measures more validly)
+
+Did the matching and code to assess all vars on both the matched and unmatched cohorts -- we report only the matched findings? -- attach the couple papers that guide the vars she chose for matched cohort analysis (and maybe described methodology for matching HOS cohorts = what vars to match on, doesn't even have to be HOS study, just any database that describes matching criteria that is not elixhauser or Carlson --> initially thought gender, age, hypertension, chf, stroke, cold, diabetes, smoking status
+
+2020 vs 1998 because interesting assessment of trends over time
+
+Did we run two analyses, one including race/edu but not the other -- we better isolate outcomes measures by matching SES varsity but running both could be useful as a sensitivity analysis -- if survey participants were vastly different in terms of SES (prolly not but reviewers might not realize that), it could impact the validity of the findings
+
+He did exclude some columns like "cancer treatment" ones because very few ppl filled those out so if they were included, the sample size would be 1/5 of what we have now (see google sheet). He also included within-year comparisons between arthritis and non-arthritis cohorts to see if there were any varsity that didn't have a different in 1998 but did have one in 2023
+
+Unknown if these patients have their OA treated at the time of survey (and treatment modality -- non-op treatments vs arthroplasty) --> would need to purchase restricted identifier files to link HOS survey data to individual patient records (can't get it, but what about knowing the total number in each cohort who have an arthroplasty?) -- treatment modalities were not collected in this survey
+
+For abstract: images -- table comparing all the outcomes we considered, or two bar graphs (1 for vs12 and 1 for ASLs)?
+
+Aaaaand all the stuff I did first: original doc outline -- converted ASCII txt files to CSV -- and HOS documentation use for indices. Data wasn't consitent/exist for every year of HOS but overall important questions (ADLs, quality of life, etc) have been present since 1998
+
+Irb exempt all study data is publicly available and does not contain patient information, no specific direct person identifiers. No clinical trials registration. No conflicts of interest
+
+Title: Burden of Knee and Hip Osteoarthritis on US Medicare Recipients
+Primary Null Hypothesis: Patients with a history of knee/hip OA will have lower VR-12 PCS and MCS scores at baseline and follow-up compared to patients without history of knee/hip OA. 
+Secondary Null Hypothesis: Patients with a history of knee/hip OA will have lower VR-12 PCS and MCS scores and increased likelihood of comorbid medical conditions at baseline and follow-up compared to patients without history of knee/hip OA.
+
+Chose knee and hip to limit scope, another survey question in HOS talks about hand and wrist OA
+
+Some VR-12 component responses in later years were converted from categorical to binary outcomes to compare cohorts which may have impacted the characterization and observed changes of these components.
+
+Refer to limitations in draft and include choices made in the methods section neutrally
+
+------------
+TODO: REALLY check that the column names and scoring are matching up frfrfr, especially for classifications (for demographics, arthritis, and certain ASLs which Annika checked). And check that the excel results sheets are copied over correctly (see next sentence for reproducibility)
+TODO: optimize code for stats analysis and make sure reproducible
+
+TODO: propensity score matching -- Warning message:
+Fewer control units than treated units in some `exact` strata; not all treated units will get a match. 
+
+TODO: yates continuity correction?
+
+TODO: get Annikas code where she changed the scoring stuff
+
+TODO: create flowcharts showing a) how we chose patients and b) how we matched them
+
+TODO: double check preprocessing -- NAs vs blanks, variable types in each column
+
+TODO: check in docs for things that are outliers (such as gender = 3)
+
+Some of the changes I made in my code/original output:
+- some values were copied over wrong in the results excel, I ran vik/annikas code to replicate
+- the p values were sus (1 or <2.2e-16) TODO
+- TODO standardize and clean up the preprocessing
+
+---------------------
+add a pre and post chi square test to compare the categorical variables that may be confounders, and determine the appropriate covariates we should call upon the matching (kinda prooving that the var combo we used for that was optimal and we r controlling the most we can). and it ensures that any differences observed in outcomes are not due to differences in these covariates but rather due to the "treatment" effect (which in this case is the two time points, and seeing differences in PROMs with less confounding from the comorbidities we chose to account for before matching). it allows us to assess the balance of the cohorts on important categorical variables an ensures that the propensity score matching has effectively reduced confoundin, leading to more reliable and valid comparisons of outcomes.
+we used chi because we only have categorical variables (TODO double check this), while a students t test would be used for continuous variables
+
+TODO The bal.tab() function provides a table of balance statistics, including standardized mean differencesSTANDARDIZED MEAN DIFFERENCES check (for after matching) the balance achieved by matching.
+
+do we wanna do linear or multivariable regression to create predictive models? just to really hammer in the point? TODO would this be appropriate between only two time points. or it could be a "future direction" to really make a predictive model based on the  HOS data by taking into account all the cohorts between 1998 and 2024 (if possible). or get our hands on the identifying data (get funding)
+
+TODO: more exact p value from the chi sq comparisons
+
