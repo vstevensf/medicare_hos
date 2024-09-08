@@ -93,3 +93,145 @@ do we wanna do linear or multivariable regression to create predictive models? j
 
 TODO: more exact p value from the chi sq comparisons
 
+One to one, many-to-one, one-to-many, full matching, Weighting Methods: Inverse probability of treatment weighting (IPTW) and other weighting methods can be seen as a way to use all available data by weighting individuals according to their propensity scores, rather than discarding unmatched units.
+
+Direction of comparison
+
+Which method
+
+Which stats after matching
+
+Logistic regression for stratification?
+
+Love plot
+
+Appendix
+
+Pre and post matched patients going through chisel or whatever I use (to ensure successful matching) -- this will choose the comorbiditis/variables to use in the matching !!! TODO
+
+Some of the changes I made in my code/original output:
+- some values were copied over wrong in the results excel, I ran vik/annikas code to replicate
+- the p values were sus (1 or <2.2e-16) TODO
+- TODO standardize and clean up the preprocessing
+- got rid of redundancy in covariates vs exact matching in matchit() fxn
+
+------
+Here’s a summary of the statistical methods used in the cohort analysis and the reasons for choosing each:
+
+1. **Propensity Score Matching (Nearest Neighbor Method)**:
+   - **Purpose**: To reduce treatment assignment bias and simulate randomization between the TSA (Total Shoulder Arthroplasty) and HA (Hemiarthroplasty) cohorts.
+   - **Why Chosen**: This method helps create balanced groups by matching patients with similar characteristics, ensuring that the comparison between the two cohorts is more accurate and less biased.
+
+2. **Univariate Logistic Regression**:
+   - **Purpose**: To assess the relationship between a single predictor variable and the outcome, identifying variables that show a significant association.
+   - **Why Chosen**: This initial analysis helps identify potential predictors or risk factors that may be important for further analysis.
+
+3. **Bivariate Analysis (Student’s t-Test and Chi-Square Test)**:
+   - **Purpose**:
+     - **Student’s t-Test**: To compare continuous variables (e.g., age) between the two cohorts.
+     - **Chi-Square Test**: To compare categorical variables (e.g., comorbidities, complications) between the two cohorts.
+   - **Why Chosen**: These tests allow for the straightforward comparison of basic patient demographics, comorbidities, and complications between the two groups, helping to identify any significant differences.
+
+4. **Multivariable Logistic Regression**:
+   - **Purpose**: To analyze the relationship between multiple predictor variables and the outcome while controlling for potential confounders (e.g., age, comorbidities).
+   - **Why Chosen**: This method adjusts for confounding variables and identifies independent predictors of complications, providing a more comprehensive understanding of risk factors.
+
+5. **Multivariable Logistic Regression with Robust Error Variance**:
+   - **Purpose**: To identify risk factors for complications after TSA and HA with more precise estimates by accounting for potential heteroscedasticity (variability in the data).
+   - **Why Chosen**: The robust error variance helps to ensure that the standard errors of the estimated coefficients are accurate, leading to more reliable statistical inferences, especially when there may be variations in the data that could affect the standard errors.
+
+### Summary List:
+1. **Propensity Score Matching**: To reduce bias and simulate randomization between cohorts.
+2. **Univariate Logistic Regression**: To identify individual predictors associated with the outcome.
+3. **Bivariate Analysis**:
+   - **Student’s t-Test**: To compare continuous variables between cohorts.
+   - **Chi-Square Test**: To compare categorical variables between cohorts.
+4. **Multivariable Logistic Regression**: To adjust for confounders and identify independent risk factors.
+5. **Multivariable Logistic Regression with Robust Error Variance**: To ensure accurate estimates and identify reliable risk factors for complications.
+
+----
+TODO "covariate balance checks" -- significant p values on pre match chi square for categorical variables
+TODO sensitivity analysis -- to assess unmeasured confounding concentrated in the treated contrary to prediction
+TODO: extra demographics to check" pull edema (could be under chi), cariogenic shock, current vs former smoking, high cholesterol
+CVA/TIA
+Cancer
+Renal
+
+TODO: interactions in the propensity-score model?
+
+Variance Ratios and Interactions:
+
+The researchers looked at more detailed checks, like the ratio of the variability (variance) of covariates between the groups and interactions between variables (how variables like age and gender might work together).
+If the propensity score model is correctly specified, these detailed checks should show that the groups are more similar (e.g., variance ratios close to 1).
+When the propensity score model was mis-specified, these detailed checks often showed problems (e.g., variance ratios different from 1).
+2. Significance Testing:
+What It Is: Significance testing (like p-values) is often used to compare covariates between treated and untreated groups after matching to check if they are balanced.
+Why It's Limited: There are two main issues:
+Reduced Power: After matching, the sample size is smaller, which makes it harder to detect imbalances. A lack of significant differences might just be due to having fewer data points, not because the groups are truly balanced.
+Sample-Specific: Significance tests only tell you about the specific sample you have, not about how your results might generalize to a larger population. Thus, they might give a false sense of security.
+Better Approaches: Other methods, like checking standardized differences or variance ratios (discussed earlier), are not affected by sample size and provide a more reliable assessment of balance.
+
+
+Do not use c-statistics or the area under the curve (AUC) to measure propensity score performance. The use of these measures is questionable, as propensity scores are intended for reducing confounding and not for predictive modeling (Stuart 2010). 
+
+Group balance = covariates are distributed similarly in both groups
+
+Things to check for balance = significance testing, standardized differences (between means and prevalences), variance checks, interactions between variables are similar between groups, absolute standardized mean difference for each baseline factor
+
+The other approaches are stratification by the propensity score, using the propensity score for inverse probability of treatment weighting, and including the propensity score as a regression covariate
+
+TODO with or without replacement?
+
+Summary and Explanation of the Systematic Review on Propensity Score Matching in Cardiovascular Surgery Literature
+1. Propensity Score Matching Methods
+Lack of Detail: Over half of the studies (52%) did not adequately describe how propensity score matching (PSM) was performed. This lack of detail included not specifying the type of matching (e.g., greedy or nearest neighbor) and failing to provide information on the caliper width, which is crucial for understanding the similarity required between matched pairs.
+Impact: Without this information, it becomes difficult for other researchers to replicate the study or assess the validity of the matching process.
+2. Assessing Balance Between Treated and Untreated Subjects
+Reporting Issues: A significant number of studies (18%) did not report whether matching successfully balanced the baseline characteristics between treated and untreated subjects.
+Use of Inappropriate Methods: The majority of studies (58%) that did report on balance used inappropriate statistical tests that did not account for the matched nature of the data, such as traditional hypothesis testing methods. None of the studies used recommended methods like standardized differences, which are not influenced by sample size and are more appropriate for assessing balance in matched samples.
+3. Estimating the Effect of Treatment or Exposure on Outcomes
+Inappropriate Analysis: Only 13% of studies used appropriate statistical methods for analyzing matched data, such as McNemar’s test or conditional logistic regression. Most studies (65%) used methods that are inappropriate for matched data, such as the log-rank test, standard Cox proportional hazards models, and regular logistic regression.
+Importance of Correct Analysis: Using the wrong methods can lead to biased estimates of treatment effects, undermining the validity of the study's conclusions.
+
+TODO:::: propensity score approaches = matching, subclassifications, covariate adjustment, and inverse probability weighting
+
+-----
+Step 1: Identify That PSM Is Viable and Appropriate
+When to Use PSM: PSM is appropriate for nonrandomized, observational data where there may be imbalances in baseline characteristics between treatment groups that could lead to confounding.
+Key Considerations: Ensure that data includes potential confounders and outcome variables. Identify imbalances between groups to justify the need for PSM.
+Example: In a study comparing oxygen support in neonates, significant baseline imbalances between groups (e.g., weight, prior surgery) justify the use of PSM to address these differences.
+Step 2: Calculate the Propensity Scores
+Definition: Propensity scores represent the probability of a subject receiving a treatment based on observed covariates.
+Calculation: Use logistic regression to estimate the propensity scores, where treatment status is the dependent variable, and covariates are the predictors.
+Choosing Covariates: Include covariates related to both the treatment and the outcome to reduce bias effectively. True confounders should be prioritized.
+Overlap Requirement: Ensure there is sufficient overlap in propensity scores between groups to allow matching.
+Step 3: Match Subjects on the Propensity Scores
+Matching Process: Pair treated and untreated subjects with similar propensity scores to create balanced groups.
+Matching Options: Choose between 1-to-1 matching, k-to-1 matching, with or without replacement, and methods like optimal or greedy matching.
+Caliper Width: Set a caliper width (e.g., 0.2 times the standard deviation of the logit of propensity scores) to control how closely matched pairs need to be.
+Step 4: Assess Balance Diagnostics to Determine the Quality of the Matching
+Assessing Balance: Check if the matching process has balanced the baseline covariates between the treatment and control groups.
+Key Metrics:
+Absolute Standardized Mean Difference: A value <0.1 indicates good balance.
+Reduction in Pseudo R²: A decrease in pseudo R² after matching suggests improved balance.
+Graphical Assessments: Use box plots, bar plots, and standardized mean difference plots to visually inspect balance.
+Revising the Model: If poor balance is observed, consider adjusting the propensity score model or the matching process.
+Step 5: Analyze the Propensity-Matched Cohort
+Appropriate Analysis Techniques:
+Binary Outcomes: Use conditional logistic regression to account for the matched pairs.
+Continuous Outcomes: Apply generalized estimating equations or paired t-tests.
+Survival/Time-to-Event Outcomes: Use appropriate survival analysis techniques considering the matched nature of the data.
+Comparison of Results: Compare results before and after PSM to assess the impact of controlling for confounding variables. PSM often reduces the effect size compared to unadjusted analyses but provides more reliable estimates.
+TL;DR
+Determine if PSM is appropriate for your study by identifying baseline imbalances in your data.
+Calculate propensity scores using logistic regression based on covariates related to treatment and outcome.
+Match subjects based on these scores to create balanced treatment and control groups.
+Assess balance between groups post-matching using standardized mean differences and other diagnostics.
+Analyze the matched cohort with statistical methods that account for the matched pairs, ensuring that the analysis is robust against confounding.
+
+A recent study found that matching on the logit of the propensity score using calipers of width 0.2 of the standard deviation of the logit of the propensity score tended to have superior performance compared with other competing methods. 
+
+nearest neighbor caliper matching without replacement (random order or closest distance) be used when forming pairs of treated and untreated subjects with similar values of the propensity score.
+
+# TODO checking inter categorical relationships between the PROMs (logistic regression? chi square tests?)
+

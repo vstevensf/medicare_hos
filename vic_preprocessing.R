@@ -12,8 +12,7 @@
 
 
 ## Set working directory -- change as needed (have to access CSVs below)
-# setwd("/Users/M296398/Desktop/medicare_HOS_ortho/stats redo w strat")
-setwd("C:\\Users\\Victoria\\Desktop\\medicare")
+setwd("/Users/M296398/Desktop/medicare_HOS_ortho/medicare_hos")
 
 ## Read in PUF files -- change filenames as needed
 df_1998 <- read.csv("C1_1998_PUF.csv") # Cohort 1, 1998 = 134076 x 200
