@@ -1,4 +1,4 @@
-# Project Name
+# Medicare HOS Analysis -- Propensity Matched Cohorts, 1998 vs 2020
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
