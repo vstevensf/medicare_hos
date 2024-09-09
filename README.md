@@ -1,30 +1,32 @@
-# Medicare HOS Analysis -- Propensity Matched Cohorts, 1998 vs 2020
+# Medicare HOS -- Propensity Matched Cohort Analysis, 1998 vs 2020
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+## License
+
+Copyright (c) 2024 Victoria Stevens
+
+All rights reserved. This software and associated documentation files (the "Software") may only be used by authorized collaborators of Victoria Stevens. Unauthorized copying, distribution, or modification of this software, via any medium, is strictly prohibited. 
+
+Permission is granted only to members of the collaboration for research purposes. For inquiries, please contact at stevens.victoria@mayo.edu.
+
 
 ## Table of Contents
 - [Project Description](#project-description)
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Contributing](#contributing)
 - [License](#license)
-- [Contact](#contact)
 
 ## Project Description
 
-Provide a brief description of the project. Explain what the project does, why it exists, and who it's for.
-
-Example:
-> This project is an R package designed for statistical analysis of large datasets. It includes a set of functions for data cleaning, visualization, and regression modeling.
+This is a repo of R files designed for statistical analysis of patient-reported outcome measures over time from [Medicare Health Outcomes Survey database](https://hosonline.org/en/). It includes a set of functions for data cleaning, propensity score matching and covariate adjustment, and balance diagnostics. 
 
 ## Features
 
-List some key features of your project. Highlight what makes it special.
-
-- Feature 1: Clean and preprocess datasets
+- Feature 1: Preprocess datasets from PUFs (public use files)
 - Feature 2: Visualize data with ggplot2-based plots
 - Feature 3: Run regression models with a single function
+
+- Preprocessing not included in this repo: conversion of ASCII PUF files to csv (converted files included here) using Medicare HOS user manuals
 
 ## Installation
 
