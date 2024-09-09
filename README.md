@@ -43,7 +43,7 @@ You can use the `devtools` package to install the project directly from GitHub.
 
 2. Install the project:
     ```r
-    devtools::install_github("yourusername/yourproject")
+    devtools::install_github("vstevensf/medicare_hos")
     ```
 
 ### Option 2: Clone the Repository
