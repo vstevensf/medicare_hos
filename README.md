@@ -23,14 +23,13 @@ This is a repo of R files designed for statistical analysis of patient-reported 
 ## Features
 
 - Feature 1: Preprocess datasets from PUFs (public use files)
-- Feature 2: Visualize data with ggplot2-based plots
-- Feature 3: Run regression models with a single function
+- Feature 2: 
+- Feature 3: 
 
 - Preprocessing not included in this repo: conversion of ASCII PUF files to csv (converted files included here) using Medicare HOS user manuals
+- TODO: visualize data with ggplot2-based plots (2), run regression models with a single function (3)
 
 ## Installation
-
-Provide instructions on how to install and set up your R project. Depending on the nature of your project (an R package, script, or Shiny app), the installation steps may vary.
 
 ### Option 1: Install from GitHub
 
@@ -53,13 +52,13 @@ You can use the `devtools` package to install the project directly from GitHub.
     git clone https://github.com/yourusername/yourproject.git
     ```
 
-2. Open the R project in RStudio or another IDE, and install required dependencies. You can install all packages listed in `DESCRIPTION` or `requirements.R`:
+2. Open the R project in RStudio or another IDE, and install required dependencies. You can install all packages listed in `DESCRIPTION` or `requirements.R`: TODO edit this
 
     ```r
     install.packages(c("ggplot2", "dplyr", "tidyverse"))  # Add relevant package names
     ```
 
-## Usage
+## Usage TODO
 
 Provide instructions for using your project. Include sample code and examples if possible.
 
