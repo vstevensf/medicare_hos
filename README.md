@@ -14,7 +14,7 @@ This is a repo of R files designed for statistical analysis of patient-reported 
 ## Features
 
 - Feature 1: Preprocess datasets from PUFs (public use files)
-    - Preprocessing not included: conversion of ASCII PUF files to csv using Medicare HOS user manuals. Converted csv PUFs can be found in this repo.
+    - Preprocessing not included: conversion of ASCII PUF files to csv using [Medicare HOS user manuals](https://hosonline.org/en/data-dissemination/data-users-guides/). Converted PUF csv files used in this analysis can be found in this repo.
 - Feature 2: Baseline imbalance assessment and identification of covariates
 - Feature 3: Propensity score matching between two cohorts of Medicare patients, cohort 1 (1998) and cohort 23 (2020).
 - Feature 4: 
@@ -63,7 +63,19 @@ This script:
 3. standardizes scoring of certain categorical variables
 4. checks for empty values and removes those records
 
-### 
+### Baseline Imbalance Assessment + 
+
+1. initial imbalance assessment
+2. ddd
+3. Standardized mean difference analysis to assess covariate balance (> .1 --> index of residual imbalance)
+4. TODO; graphical diagnostics to assess covariate balance --> a) mirrored histogram for distribution of propensity score in the original and matched groups, b) Love plot of the SMDs for quick overview of balance
+
+basically, the propensity score is a "balancing score" such that baseline covariate distribution is the same across treatment arms
+
+### Propensity Score Matching
+propensity score estimated using logistic regression model in which treatment states is regressed on the measured baseline covariates
+
+propensity score matching by logistic regression using linear terms, no interaction or stratification
 
 ## License
 
