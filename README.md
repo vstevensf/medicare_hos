@@ -1,14 +1,5 @@
 # Medicare HOS -- Propensity Matched Cohort Analysis, 1998 vs 2020
 
-## License
-
-Copyright (c) 2024 Victoria Stevens
-
-All rights reserved. This software and associated documentation files (the "Software") may only be used by authorized collaborators of Victoria Stevens. Unauthorized copying, distribution, or modification of this software, via any medium, is strictly prohibited. 
-
-Permission is granted only to members of the collaboration for research purposes. For inquiries, please contact at stevens.victoria@mayo.edu.
-
-
 ## Table of Contents
 - [Project Description](#project-description)
 - [Features](#features)
@@ -18,15 +9,16 @@ Permission is granted only to members of the collaboration for research purposes
 
 ## Project Description
 
-This is a repo of R files designed for statistical analysis of patient-reported outcome measures over time from [Medicare Health Outcomes Survey database](https://hosonline.org/en/). It includes a set of functions for data cleaning, propensity score matching and covariate adjustment, and balance diagnostics. 
+This is a repo of R files designed for statistical analysis of patient-reported outcome measures (PROMs) over time from [Medicare Health Outcomes Survey database](https://hosonline.org/en/). It includes a set of functions for data cleaning, balance diagnostics, and propensity score matching with covariate adjustment. 
 
 ## Features
 
 - Feature 1: Preprocess datasets from PUFs (public use files)
-- Feature 2: 
-- Feature 3: 
+    - Preprocessing not included: conversion of ASCII PUF files to csv using Medicare HOS user manuals. Converted csv PUFs can be found in this repo.
+- Feature 2: Baseline imbalance assessment and identification of covariates
+- Feature 3: Propensity score matching between two cohorts of Medicare patients, cohort 1 (1998) and cohort 23 (2020).
+- Feature 4: 
 
-- Preprocessing not included in this repo: conversion of ASCII PUF files to csv (converted files included here) using Medicare HOS user manuals
 - TODO: visualize data with ggplot2-based plots (2), run regression models with a single function (3)
 
 ## Installation
@@ -49,7 +41,7 @@ You can use the `devtools` package to install the project directly from GitHub.
 
 1. Clone the repository to your local machine:
     ```bash
-    git clone https://github.com/yourusername/yourproject.git
+    git clone https://github.com/vstevensf/medicare_hos.git
     ```
 
 2. Open the R project in RStudio or another IDE, and install required dependencies. You can install all packages listed in `DESCRIPTION` or `requirements.R`: TODO edit this
@@ -58,14 +50,25 @@ You can use the `devtools` package to install the project directly from GitHub.
     install.packages(c("ggplot2", "dplyr", "tidyverse"))  # Add relevant package names
     ```
 
-## Usage TODO
+## Usage
 
-Provide instructions for using your project. Include sample code and examples if possible.
+R version 4.4.1 (2024-06-14)
 
-### Example 1: Data Cleaning
-```r
-# Load the package
-library(yourproject)
+### Preprocessing/Data Cleaning
+Files: `vic_preprocessing.R`, `C1_1998_PUF.csv`, `C23A_2020_PUF.csv`
 
-# Clean dataset
-cleaned_data <- clean_data(raw_data)
+This script:
+1. reads in the cohort PUF csv files, which contain Medicare patient responses to the Medicare HOS (years: 1998 and 2020) 
+2. extracts relevant columns containing demographic information and PROMs
+3. standardizes scoring of certain categorical variables
+4. checks for empty values and removes those records
+
+### 
+
+## License
+
+Copyright (c) 2024 Victoria Stevens
+
+All rights reserved. This software and associated documentation files (the "Software") may only be used by authorized collaborators of Victoria Stevens. Unauthorized copying, distribution, or modification of this software, via any medium, is strictly prohibited. 
+
+Permission is granted only to members of the collaboration for research purposes. For inquiries, please contact at stevens.victoria@mayo.edu.
