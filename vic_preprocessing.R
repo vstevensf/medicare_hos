@@ -235,7 +235,8 @@ combined_data_copy <- combined_data
 # age
 combined_data$AGE <- factor(combined_data$AGE, 
                                levels = c(2, 3),
-                               labels = c("65 to 74", "Greater than 74"))
+                               labels = c("65 to 74", "Greater than 74"),
+                            ordered = TRUE)
 # race
 combined_data$RACE <- factor(combined_data$RACE, 
                             levels = c(1, 2, 3),
@@ -253,7 +254,8 @@ combined_data$MRSTAT <- factor(combined_data$MRSTAT,
 # education
 combined_data$EDUC <- factor(combined_data$EDUC, 
                                levels = c(1, 2, 3),
-                               labels = c("Less than GED", "GED", "Greater than GED"))
+                               labels = c("Less than GED", "GED", "Greater than GED"),
+                             ordered = TRUE)
 
 # Arthritis of Hip/Knee
 combined_data$Arth_Hip_Knee <- factor(combined_data$Arth_Hip_Knee, 
@@ -264,93 +266,110 @@ combined_data$Arth_Hand_Wr <- factor(combined_data$Arth_Hand_Wr,
                                       levels = c(1, 2),
                                       labels = c("Yes", "No"))
 # General Health
-combined_data$General_Health <- factor(combined_data$General_Health, 
-                                     levels = c(1, 2, 3, 4, 5),
-                                     labels = c("Excellent", "Very Good", "Good", "Fair", "Poor"))
+combined_data$General_Health <- factor(combined_data$General_Health,
+                                       levels = c(5, 4, 3, 2, 1),
+                                       labels = c("Poor", "Fair", "Good", "Very Good", "Excellent"),
+                                     ordered = TRUE)
 # Moderate Activities
 combined_data$Mod_Activity <- factor(combined_data$Mod_Activity, 
                                        levels = c(1, 2, 3),
-                                       labels = c("Yes, limited a lot", "Yes, limited a little", "No, not limited at all"))
+                                       labels = c("Yes, limited a lot", "Yes, limited a little", "No, not limited at all"),
+                                     ordered = TRUE)
 
 # Climbing several flights of stairs
 combined_data$Stairs <- factor(combined_data$Stairs, 
                                      levels = c(1, 2, 3),
-                                     labels = c("Yes, limited a lot", "Yes, limited a little", "No, not limited at all"))
+                                     labels = c("Yes, limited a lot", "Yes, limited a little", "No, not limited at all"),
+                               ordered = TRUE)
 
 # phys amt limit
 combined_data$Phys_Amount_Limit <- factor(combined_data$Phys_Amount_Limit, 
                                levels = c(1, 2),
-                               labels = c("Yes, accomplished less", "No, not affected"))
+                               labels = c("Yes, accomplished less", "No, not affected"),
+                               ordered = TRUE)
 
 # phys type limit
 combined_data$Phys_Type_Limit <- factor(combined_data$Phys_Type_Limit, 
                                           levels = c(1, 2),
-                                          labels = c("Yes, limited", "No, not limited"))
+                                          labels = c("Yes, limited", "No, not limited"),
+                                        ordered = TRUE)
 
 # pain work
 combined_data$Pain_Work <- factor(combined_data$Pain_Work, 
-                                        levels = c(1, 2, 3, 4, 5),
-                                        labels = c("Not at All", "A little bit", "Moderately", "Quite a bit", "Extremely"))
+                                  levels = c(5, 4, 3, 2, 1),
+                                  labels = c("Extremely", "Quite a bit", "Moderately", "A little bit", "Not at all"),
+                                  ordered = TRUE)
 
 # emo amount limit
 combined_data$Emo_Amount_Limit <- factor(combined_data$Emo_Amount_Limit, 
                                           levels = c(1, 2),
-                                          labels = c("Yes, accomplished less", "No, not affected"))
+                                          labels = c("Yes, accomplished less", "No, not affected"),
+                                         ordered = TRUE)
 
 # emo carefulness
 combined_data$Emo_Carefulness <- factor(combined_data$Emo_Carefulness, 
                                          levels = c(1, 2),
-                                         labels = c("Yes, less careful", "No, not affected"))
+                                         labels = c("Yes, less careful", "No, not affected"),
+                                        ordered = TRUE)
 
 # peace
 combined_data$Peace <- factor(combined_data$Peace, 
-                                        levels = c(1, 2, 3, 4, 5, 6),
-                                        labels = c("All of the time", "Most of the time", "A good bit of the time", "Some of the time", "A little of the time", "None of the time"))
+                              levels = c(6, 5, 4, 3, 2, 1),
+                              labels = c("None of the time", "A little of the time", "Some of the time", "A good bit of the time", "Most of the time", "All of the time"),
+                              ordered = TRUE)
 
 # Energy
-combined_data$Energy <- factor(combined_data$Energy, 
-                              levels = c(1, 2, 3, 4, 5, 6),
-                              labels = c("All of the time", "Most of the time", "A good bit of the time", "Some of the time", "A little of the time", "None of the time"))
+combined_data$Energy <- factor(combined_data$Energy,
+                               levels = c(6, 5, 4, 3, 2, 1),
+                               labels = c("None of the time", "A little of the time", "Some of the time", "A good bit of the time", "Most of the time", "All of the time"),
+                               ordered = TRUE)
 
 # Down
-combined_data$Down <- factor(combined_data$Down, 
-                               levels = c(1, 2, 3, 4, 5, 6),
-                               labels = c("All of the time", "Most of the time", "A good bit of the time", "Some of the time", "A little of the time", "None of the time"))
-
+combined_data$Down <- factor(combined_data$Down,
+                             levels = c(6, 5, 4, 3, 2, 1),
+                             labels = c("None of the time", "A little of the time", "Some of the time", "A good bit of the time", "Most of the time", "All of the time"),
+                             ordered = TRUE)
 # social interference
-combined_data$Social_Interference <- factor(combined_data$Social_Interference, 
-                             levels = c(1, 2, 3, 4, 5),
-                             labels = c("All of the time", "Most of the time", "Some of the time", "A little of the time", "None of the time"))
+combined_data$Social_Interference <- factor(combined_data$Social_Interference,
+                                            levels = c(5, 4, 3, 2, 1),
+                                            labels = c("None of the time", "A little of the time", "Some of the time", "Most of the time", "All of the time"),
+                                            ordered = TRUE)
 
 # Bathing
 combined_data$Bathing <- factor(combined_data$Bathing, 
                                             levels = c(1, 2, 3),
-                                            labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"))
+                                            labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
+                                ordered = TRUE)
 
 # Dressing
 combined_data$Dressing <- factor(combined_data$Dressing, 
                                 levels = c(1, 2, 3),
-                                labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"))
+                                labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
+                                ordered = TRUE)
 
 # Eating
 combined_data$Eating <- factor(combined_data$Eating, 
                                  levels = c(1, 2, 3),
-                                 labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"))
+                                 labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
+                               ordered = TRUE)
 
 # Chairs
 combined_data$Chairs <- factor(combined_data$Chairs, 
                                levels = c(1, 2, 3),
-                               labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"))
+                               labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
+                               ordered = TRUE)
 
 # Walking
 combined_data$Walking <- factor(combined_data$Walking, 
                                levels = c(1, 2, 3),
-                               labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"))
+                               labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
+                               ordered = TRUE)
 
 # Toilet
 combined_data$Toilet <- factor(combined_data$Toilet, 
                                levels = c(1, 2, 3),
-                               labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"))
+                               labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
+                               ordered = TRUE)
 
 # htn
 combined_data$Hypertension <- factor(combined_data$Hypertension, 
@@ -409,8 +428,9 @@ combined_data$Cancer <- factor(combined_data$Cancer,
 
 # current smoker
 combined_data$Smoking_Status <- factor(combined_data$Smoking_Status, 
-                                     levels = c(1, 2, 3),
-                                     labels = c("Every day", "Some days", "Not at all"))
+                                     levels = c(3, 2, 1),
+                                     labels = c("Not at all", "Some days", "Every day"),
+                                     ordered = TRUE)
 
 # region
 combined_data$Region <- factor(combined_data$Region, 
@@ -428,6 +448,7 @@ combined_data$Region <- factor(combined_data$Region,
                                        "Region 10 - Seattle (AK, ID, OR, and WA)"))
 
 # Cohort: 0 = 1998 (c1), 1 = 2020 (c23)
+# TODO should i treat as ordinal? i didnt because there's no inherent "ordering" as im doing the comparison over time (time point categories as independent var)
 combined_data$cohort <- factor(combined_data$cohort, 
                                levels = c(0, 1),
                                labels = c("Cohort 1 (1998)", "Cohort 23 (2020)"))
@@ -463,4 +484,7 @@ writeData(wb, sheet = "numerical", combined_data_copy)
 
 # Save the workbook to a file
 saveWorkbook(wb, file = "combined_data.xlsx", overwrite = TRUE)
+
+rm(wb) # remove workbook object
+gc() # run garbage collection (frees memory)
 

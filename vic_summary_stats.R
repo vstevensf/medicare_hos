@@ -1,74 +1,133 @@
 install.packages("tableone")
 library(tableone) # summary stats and balance
 install.packages("openxlsx")
-library(openxlsx)
+library(openxlsx) # writing results to excel sheet
 install.packages("dplyr")
-library(dplyr)
+library(dplyr) # for data manipulation
 install.packages("ggplot2")
-library(ggplot2)
-
-# convert all numeric variables with fewer than 5 unique values 
-# (suggesting they are categorical) into factors automatically
-combined_data <- combined_data %>%
-  mutate_if(~ is.numeric(.) && n_distinct(.) < 5, as.factor)
-
-# Convert numeric gender variable to a factor with labels Male and Female
-combined_data$GENDER <- factor(combined_data$GENDER, 
-                             levels = c(1, 2),  # Assuming 1 = Male, 2 = Female
-                             labels = c("Male", "Female"))
+library(ggplot2) # plots
 
 
-# summary stats for demographics
-demos_to_check <- c(
-  "AGE", "RACE", "GENDER", "MRSTAT", "EDUC" 
-)
+## Custom function to determine if Fisher's or Chi-squared was used (in CreateTableOne)
+check_test_type <- function(var1, var2, data) {
+  # Create a contingency table
+  tbl <- table(data[[var1]], data[[var2]])
+  
+  # Perform Chi-squared test to extract expected counts
+  chi_sq_test <- chisq.test(tbl)
+  
+  # Check if any expected count is less than 5
+  if (any(chi_sq_test$expected < 5)) {
+    return("Fisher's Exact Test")
+  } else {
+    return("Chi-squared Test")
+  }
+}
+
+
+## Demographics descriptive statistics table
+# checking frequencies/statistical test type
+demos_to_check <- c("AGE", "RACE", "GENDER", "MRSTAT", "EDUC", "Region")
+for (col in demos_to_check) {
+  print(table(combined_data[[col]]))
+} # high freqs for all categories, prolly will run chi sq over fisher
+sapply(demos_to_check, function(var) check_test_type(var, "cohort", combined_data)) # ran chi sq on all of them
+
+# compute descriptive stats
 demos_table <- CreateTableOne(vars = demos_to_check,
                               strata = "cohort", 
-                              data = combined_data,
-                              factorVars = demos_to_check,
-                              includeNA = TRUE)
-print(demos_table, smd = TRUE)
-df_demos_table <- as.data.frame(print(demos_table, smd=TRUE))
-
-# Remove any leading or trailing spaces in the columns before extraction
-df_demos_table[["0"]] <- trimws(df_demos_table[["0"]])
-df_demos_table[["1"]] <- trimws(df_demos_table[["1"]])
-
-# Extract the counts (numbers before the parentheses)
-# df_demos_table$Cohort1_counts <- as.numeric(sub(" \\(.*\\)", "", df_demos_table[["0"]]))
-# df_demos_table$Cohort2_counts <- as.numeric(sub(" \\(.*\\)", "", df_demos_table[["1"]]))
-
+                              data = combined_data)
+# save output
+df_demos_table <- as.data.frame(print(demos_table, 
+                                      showAllLevels = TRUE, 
+                                      noSpaces = TRUE,
+                                      smd = TRUE))
 # Extract percentages (numbers inside parentheses with or without spaces)
-df_demos_table$Cohort1_percent <- as.numeric(sub(".*\\(\\s*([0-9]*\\.?[0-9]+)\\s*\\)", "\\1", df_demos_table[["0"]]))
-df_demos_table$Cohort2_percent <- as.numeric(sub(".*\\(\\s*([0-9]*\\.?[0-9]+)\\s*\\)", "\\1", df_demos_table[["1"]]))
-
-
+df_demos_table$Cohort1_percent <- as.numeric(sub(".*\\(\\s*([0-9]*\\.?[0-9]+)\\s*\\)", "\\1", df_demos_table$`Cohort 1 (1998)`))
+df_demos_table$Cohort2_percent <- as.numeric(sub(".*\\(\\s*([0-9]*\\.?[0-9]+)\\s*\\)", "\\1", df_demos_table$`Cohort 23 (2020)`))
+# calculate percent diff
 df_demos_table$percent_diff <- df_demos_table$Cohort2_percent - df_demos_table$Cohort1_percent
+# and write to excel workbook
+wbss <- createWorkbook() # Create a new workbook
+addWorksheet(wbss, "demos")
+writeData(wbss, sheet = "demos", df_demos_table, rowNames = TRUE) 
+saveWorkbook(wbss, file = "summary_stats.xlsx", overwrite = TRUE) # save sheet
 
-# summary stats for comorbidities
+
+## Comorbidities descriptive statistics table
 comorbidities_to_check <- c(
-  "Diabetes",  "ANG_CAD", "Hypertension", "CHF", "MI", "IBD", "COPD", 
-  "Smoking_Status", "Stroke"
+  "Arth_Hand_Wr", "Hypertension", "ANG_CAD", "CHF", "MI", "Heart_Other", "Stroke",
+  "COPD", "IBD", "Sciatica", "Diabetes", "Cancer", "Smoking_Status" 
 )
+# checking frequencies/statistical test type
+for (col in comorbidities_to_check) {
+  print(table(combined_data[[col]]))
+}
+sapply(comorbidities_to_check, function(var) check_test_type(var, "cohort", combined_data)) # ran chisq for all
+# compute descriptive stats
 comorb_table <- CreateTableOne(vars = comorbidities_to_check,
+                              strata = "cohort", 
+                              data = combined_data)
+# save output
+df_comorb_table <- as.data.frame(print(comorb_table, 
+                                      showAllLevels = TRUE, 
+                                      noSpaces = TRUE,
+                                      smd = TRUE))
+# Extract percentages
+df_comorb_table$Cohort1_percent <- as.numeric(sub(".*\\(\\s*([0-9]*\\.?[0-9]+)\\s*\\)", "\\1", df_comorb_table$`Cohort 1 (1998)`))
+df_comorb_table$Cohort2_percent <- as.numeric(sub(".*\\(\\s*([0-9]*\\.?[0-9]+)\\s*\\)", "\\1", df_comorb_table$`Cohort 23 (2020)`))
+# calculate percent diff
+df_comorb_table$percent_diff <- df_comorb_table$Cohort2_percent - df_comorb_table$Cohort1_percent
+# and write to same excel workbook, new sheet
+wbss <- loadWorkbook("summary_stats.xlsx")
+addWorksheet(wbss, "comorb")
+writeData(wbss, sheet = "comorb", df_comorb_table, rowNames = TRUE) 
+saveWorkbook(wbss, file = "summary_stats.xlsx", overwrite = TRUE) # save sheet
+
+
+
+#### PROMs descriptive statistics tables
+### VR12 = PCS (Physical Health) + MCS (Mental Health)
+## PCS = General health + mod activites + stairs (several) + phys accomplished less + phys limited in kind + pain interference
+pcs_vr12_to_check <- c( 
+  "General_Health", "Mod_Activity", "Stairs", "Phys_Amount_Limit", 
+  "Phys_Type_Limit", "Pain_Work"
+  )
+# checking frequencies/statistical test type
+for (col in pcs_vr12_to_check) {
+  print(table(combined_data[[col]]))
+} # high freqs, will prolly go for chisq
+sapply(pcs_vr12_to_check, function(var) check_test_type(var, "cohort", combined_data)) # ran chisq for all
+# compute descriptive stats
+pcs_vr12_table <- CreateTableOne(vars = pcs_vr12_to_check,
                                strata = "cohort", 
-                               data = combined_data,
-                               test = TRUE)
-df_comorb_table <- as.data.frame(print(comorb_table, smd=TRUE))
+                               data = combined_data)
+# save output
+df_pcs_vr12_table <- as.data.frame(print(pcs_vr12_table, 
+                                       showAllLevels = TRUE, 
+                                       noSpaces = TRUE,
+                                       smd = TRUE))
+# Extract percentages
+df_pcs_vr12_table$Cohort1_percent <- as.numeric(sub(".*\\(\\s*([0-9]*\\.?[0-9]+)\\s*\\)", "\\1", df_pcs_vr12_table$`Cohort 1 (1998)`))
+df_pcs_vr12_table$Cohort2_percent <- as.numeric(sub(".*\\(\\s*([0-9]*\\.?[0-9]+)\\s*\\)", "\\1", df_pcs_vr12_table$`Cohort 23 (2020)`))
+# calculate percent diff
+df_pcs_vr12_table$percent_diff <- df_pcs_vr12_table$Cohort2_percent - df_pcs_vr12_table$Cohort1_percent
+# and write to same excel workbook, new sheet
+wbss <- loadWorkbook("summary_stats.xlsx")
+addWorksheet(wbss, "pcs")
+writeData(wbss, sheet = "pcs", df_pcs_vr12_table, rowNames = TRUE) 
+saveWorkbook(wbss, file = "summary_stats.xlsx", overwrite = TRUE) # save sheet
 
-# summary stats for PROMs
-
-vr12_to_check <- c(
-  "General_Health", "Mod_Activity", "Stairs", "Phys_Amount_Limit", "Phys_Type_Limit",
-  "Emo_Amount_Limit", "Emo_Carefulness", "Pain_Work", "Peace", "Energy", "Down",
+## MCS =  emo accomplished less + not careful + peaceful + energy + down-hearted + social activity interference
+mcs_vr12_to_check <- c(
+  "Emo_Amount_Limit", "Emo_Carefulness",  "Peace", "Energy", "Down",
   "Social_Interference"
 )
-vr12_table <- CreateTableOne(vars = vr12_to_check,
-                             strata = "cohort", 
-                             data = combined_data,
-                             test = TRUE)
-df_vr12_table <- as.data.frame(print(vr12_table, smd=TRUE))
 
+
+
+
+### ADLs
 adls_to_check <- c(
   "Bathing", "Dressing", "Eating", "Chairs", "Walking", "Toilet"
 )
@@ -108,132 +167,224 @@ adl_coh_angcad_table <- CreateTableOne(vars = adls_to_check,
                                      data = combined_data, test = TRUE)
 df_adl_coh_angcad_table <- as.data.frame(print(adl_coh_angcad_table, smd=TRUE))
 
-### figures
+
+###################
+## Demographics by cohort
 # Proportional bar plot to compare age distribution by cohort
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(AGE, levels = c(1, 2, 3), labels = c("Less than 65", "65 to 74", "Greater than 74")))) +
+ggplot(combined_data, aes(x = cohort, fill = AGE)) +
   geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Age Distribution", 
+  labs(title = "Proportional Age Distribution by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
        fill = "Age") +
   theme_minimal()
 
 # race
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(RACE, levels = c(1, 2, 3), labels = c("White", "Black/AA", "Other")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Race Distribution", 
+ggplot(combined_data, aes(x = cohort, fill = RACE)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Race Distribution by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
        fill = "Race") +
   theme_minimal()
 
 
-# Proportional bar plot with gender proportions within each cohort
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(GENDER, levels = c(1, 2), labels = c("Male", "Female")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Gender Distribution", 
+# gender
+ggplot(combined_data, aes(x = cohort, fill = GENDER)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Gender Distribution by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
        fill = "Gender") +
   theme_minimal()
 
 # married status
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(MRSTAT, levels = c(1, 2), labels = c("Married", "Non-Married")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Marital Status Distribution", 
+ggplot(combined_data, aes(x = cohort, fill = MRSTAT)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Marital Status Distribution by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
        fill = "Marital Status") +
   theme_minimal()
 
 # education
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(EDUC, levels = c(1, 2, 3), labels = c("< GED", "GED", "> GED")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Education Level Distribution", 
+ggplot(combined_data, aes(x = cohort, fill = EDUC)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Education Level Distribution by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
        fill = "Education Level") +
   theme_minimal()
 
-# diabetes
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(Diabetes, levels = c(1, 2), labels = c("Yes", "No")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Diabetes Distribution", 
+# region
+ggplot(combined_data, aes(x = cohort, fill = Region)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Regional Distribution by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
-       fill = "Diabetes") +
+       fill = "Region") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 0.6),  # Rotate labels
+        legend.text = element_text(size = 7),  # Reduce legend text size
+        legend.key.size = unit(0.5, "cm"),     # Reduce the size of legend keys
+        legend.spacing.y = unit(0.2, "cm"))    # Reduce space between legend items
+
+# region p2
+# Prepare the data by summarizing the count of each category within each cohort
+region_summary <- combined_data %>%
+  group_by(Region, cohort) %>%   # Group by cohort and gender
+  summarise(count = n()) %>%     # Count the occurrences
+  group_by(cohort) %>%
+  mutate(proportion = count / sum(count))  # Calculate proportions if needed
+
+# Create the side-by-side bar plot (dodged) for gender by cohort
+ggplot(region_summary, aes(x = Region, y = proportion, fill = cohort)) +
+  geom_bar(stat = "identity", position = position_dodge()) +  # Use position_dodge for side-by-side bars
+  scale_y_continuous(labels = scales::percent_format()) +  # Show proportions as percentages
+  scale_x_discrete(labels = c(
+    "Region 1 - Boston (CT, ME, MA, NH, RI, and VT)" = "1",
+    "Region 2 - New York (NJ, NY, PR, and the VI)" = "2",
+    "Region 3 - Philadelphia (DC, DE, MD, PA, VA, and WV)" = "3",
+    "Region 4 - Atlanta (AL, FL, GA, KY, MS, NC, SC, and TN)" = "4",
+    "Region 5 - Chicago (IL, IN, MI, MN, OH, and WI)" = "5",
+    "Region 6 - Dallas (AR, LA, NM, OK, and TX)" = "6",
+    "Region 7 - Kansas City (IA, KS, MO, and NE)" = "7",
+    "Region 8 - Denver (CO, MT, ND, SD, UT, and WY)" = "8",
+    "Region 9 - San Francisco (AZ, CA, Guam, HI, and NV)" = "9",
+    "Region 10 - Seattle (AK, ID, OR, and WA)" = "10"
+  )) +  # Rename x-axis labels
+  labs(title = "Region Distribution by Cohort",
+       x = "Region", y = "Count", fill = "Cohort") +
+  theme_minimal() + 
+  theme(
+    legend.position = "top", 
+    axis.text.x = element_text(size = 10))
+
+
+## Comorbidities by cohort
+# hand/wrist arthritis
+ggplot(combined_data, aes(x = cohort, fill = Arth_Hand_Wr)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Arthritis of Hand or Knee Distribution by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Arth_Hand_Wr") +
   theme_minimal()
 
-# ang cad
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(ANG_CAD, levels = c(1, 2), labels = c("Yes", "No")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Angina/CAD Distribution", 
+# hypertension
+ggplot(combined_data, aes(x = cohort, fill = Hypertension)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Hypertension Distribution by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Hypertension") +
+  theme_minimal()
+
+# ang_cad
+ggplot(combined_data, aes(x = cohort, fill = ANG_CAD)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Angina Pectoris/Coronary Artery Disease \nDistribution by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
        fill = "Angina/CAD") +
   theme_minimal()
 
-# htn
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(Hypertension, levels = c(1, 2), labels = c("Yes", "No")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Hypertension Distribution", 
-       x = "Cohort", 
-       y = "Proportion", 
-       fill = "HTN") +
-  theme_minimal()
-
 # chf
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(CHF, levels = c(1, 2), labels = c("Yes", "No")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Congestive Heart Failure Distribution", 
+ggplot(combined_data, aes(x = cohort, fill = CHF)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Congestive Heart Failure Distribution by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
        fill = "CHF") +
   theme_minimal()
 
 # mi
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(MI, levels = c(1, 2), labels = c("Yes", "No")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Myocardial Infarction Distribution", 
+ggplot(combined_data, aes(x = cohort, fill = MI)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Myocardial Infarction Distribution by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
        fill = "MI") +
   theme_minimal()
 
-# ibd
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(IBD, levels = c(1, 2), labels = c("Yes", "No")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Inflamm Bowel Disease Distribution", 
+# other heart
+ggplot(combined_data, aes(x = cohort, fill = Heart_Other)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional \"Other Heart Condition\" Distribution by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
-       fill = "IBD") +
+       fill = "Heart_Other") +
+  theme_minimal()
+
+# Stroke
+ggplot(combined_data, aes(x = cohort, fill = Stroke)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Stroke Distribution by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Stroke") +
   theme_minimal()
 
 # copd
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(COPD, levels = c(1, 2), labels = c("Yes", "No")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional COPD Distribution", 
+ggplot(combined_data, aes(x = cohort, fill = COPD)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional COPD/Emphysema/Asthma by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
        fill = "COPD") +
   theme_minimal()
 
-# smoking status
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(Smoking_Status, levels = c(1, 2, 3, 4), labels = c("Every day", "Some days", "Not at all", "Don't Know")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Current Smoker Distribution", 
+# ibd
+ggplot(combined_data, aes(x = cohort, fill = IBD)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional IBD (Crohn's, Ulcerative Colitis) by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
-       fill = "Current Smoker") +
+       fill = "IBD") +
   theme_minimal()
 
-# stroke
-ggplot(combined_data, aes(x = factor(cohort, levels = c(0, 1), labels = c("1998", "2020")), fill = factor(Stroke, levels = c(1, 2), labels = c("Yes", "No")))) +
-  geom_bar(position = "fill", width = 0.7) +  # "fill" ensures proportions within each cohort
-  labs(title = "Proportional Stroke Distribution", 
+# sciatica
+ggplot(combined_data, aes(x = cohort, fill = Sciatica)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Sciatica by Cohort", 
        x = "Cohort", 
        y = "Proportion", 
-       fill = "Stroke") +
+       fill = "Sciatica") +
   theme_minimal()
+
+# diabetes
+ggplot(combined_data, aes(x = cohort, fill = Diabetes)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Diabetes/Hyperglycemia/Glycosuria by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Diabetes") +
+  theme_minimal()
+
+# cancer
+ggplot(combined_data, aes(x = cohort, fill = Cancer)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional \"Any cancer (excluding skin cancer)\" by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Cancer") +
+  theme_minimal()
+
+# current smoking status
+ggplot(combined_data, aes(x = cohort, fill = Smoking_Status)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Current Smoking Status by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Smoking_Status") +
+  theme_minimal()
+
+
+
+
+
+################
+rm(wbss) # remove workbook object
+gc() # run garbage collection (frees memory)
 
 
