@@ -150,46 +150,35 @@ saveWorkbook(wbss, file = "summary_stats.xlsx", overwrite = TRUE) # save sheet
 
 
 
-
 ### ADLs
+# checking frequencies/statistical test type
 adls_to_check <- c(
   "Bathing", "Dressing", "Eating", "Chairs", "Walking", "Toilet"
 )
-adl_table <- CreateTableOne(vars = adls_to_check,
-                             strata = "cohort", 
-                             data = combined_data,
-                             test = TRUE)
-df_adl_table <- as.data.frame(print(adl_table, smd=TRUE))
+for (col in adls_to_check) {
+  print(table(combined_data[[col]]))
+} # high freqs, will prolly go for chisq
+sapply(adls_to_check, function(var) check_test_type(var, "cohort", combined_data)) # ran chisq for all
+# compute descriptive stats
+adls_table <- CreateTableOne(vars = adls_to_check,
+                                 strata = "cohort", 
+                                 data = combined_data)
+# save output
+df_adls_table <- as.data.frame(print(adls_table, 
+                                         showAllLevels = TRUE, 
+                                         noSpaces = TRUE,
+                                         smd = TRUE))
+# Extract percentages
+df_adls_table$Cohort1_percent <- as.numeric(sub(".*\\(\\s*([0-9]*\\.?[0-9]+)\\s*\\)", "\\1", df_adls_table$`Cohort 1 (1998)`))
+df_adls_table$Cohort2_percent <- as.numeric(sub(".*\\(\\s*([0-9]*\\.?[0-9]+)\\s*\\)", "\\1", df_adls_table$`Cohort 23 (2020)`))
+# calculate percent diff
+df_adls_table$percent_diff <- df_adls_table$Cohort2_percent - df_adls_table$Cohort1_percent
+# and write to same excel workbook, new sheet
+wbss <- loadWorkbook("summary_stats.xlsx")
+addWorksheet(wbss, "adls")
+writeData(wbss, sheet = "adls", df_adls_table, rowNames = TRUE) 
+saveWorkbook(wbss, file = "summary_stats.xlsx", overwrite = TRUE) # save sheet
 
-# also stratifying by comorb
-# Create a new stratification variable combining cohort x diabeted
-combined_data$coh_diab <- interaction(combined_data$cohort, combined_data$Diabetes)
-
-# Create a TableOne object stratified by the new combined strata (cohort and diabetes status)
-vr12_coh_diab_table <- CreateTableOne(vars = vr12_to_check,
-                         strata = "coh_diab",  # Stratify by the combined variable (cohort and diabetes)
-                         data = combined_data, test = TRUE)
-
-# Print the summary table
-df_vr12_coh_diab_table <- as.data.frame(print(vr12_coh_diab_table, smd=TRUE))
-
-adl_coh_diab_table <- CreateTableOne(vars = adls_to_check,
-                                      strata = "coh_diab",  # Stratify by the combined variable (cohort and diabetes)
-                                      data = combined_data, test = TRUE)
-df_adl_coh_diab_table <- as.data.frame(print(adl_coh_diab_table, smd=TRUE))
-
-# coh x ang/cad
-combined_data$coh_angcad <- interaction(combined_data$cohort, combined_data$ANG_CAD)
-
-vr12_coh_angcad_table <- CreateTableOne(vars = vr12_to_check,
-                                      strata = "coh_angcad",  
-                                      data = combined_data, test = TRUE)
-df_vr12_coh_angcad_table <- as.data.frame(print(vr12_coh_angcad_table, smd=TRUE))
-
-adl_coh_angcad_table <- CreateTableOne(vars = adls_to_check,
-                                     strata = "coh_diab",  
-                                     data = combined_data, test = TRUE)
-df_adl_coh_angcad_table <- as.data.frame(print(adl_coh_angcad_table, smd=TRUE))
 
 
 ################### Figures
@@ -515,6 +504,61 @@ ggplot(combined_data, aes(x = cohort, fill = Social_Interference)) +
        fill = "Social_Interference") +
   theme_minimal()
 
+
+## ADLs by cohort
+# bathing
+ggplot(combined_data, aes(x = cohort, fill = Bathing)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Difficulty Bathing by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Bathing") +
+  theme_minimal()
+
+# dressing
+ggplot(combined_data, aes(x = cohort, fill = Dressing)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Difficulty Dressing by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Dressing") +
+  theme_minimal()
+
+# eating
+ggplot(combined_data, aes(x = cohort, fill = Eating)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Difficulty Eating by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Eating") +
+  theme_minimal()
+
+# chairs
+ggplot(combined_data, aes(x = cohort, fill = Chairs)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Difficulty Getting In/Out of Chairs by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Chairs") +
+  theme_minimal()
+
+# walking
+ggplot(combined_data, aes(x = cohort, fill = Walking)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Difficulty Walking by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Walking") +
+  theme_minimal()
+
+# toilet
+ggplot(combined_data, aes(x = cohort, fill = Toilet)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Difficulty Using the Toilet by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Toilet") +
+  theme_minimal()
 
 ################
 rm(wbss) # remove workbook object
