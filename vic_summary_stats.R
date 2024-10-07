@@ -123,6 +123,30 @@ mcs_vr12_to_check <- c(
   "Emo_Amount_Limit", "Emo_Carefulness",  "Peace", "Energy", "Down",
   "Social_Interference"
 )
+# checking frequencies/statistical test type
+for (col in mcs_vr12_to_check) {
+  print(table(combined_data[[col]]))
+} # high freqs, will prolly go for chisq
+sapply(mcs_vr12_to_check, function(var) check_test_type(var, "cohort", combined_data)) # ran chisq for all
+# compute descriptive stats
+mcs_vr12_table <- CreateTableOne(vars = mcs_vr12_to_check,
+                                 strata = "cohort", 
+                                 data = combined_data)
+# save output
+df_mcs_vr12_table <- as.data.frame(print(mcs_vr12_table, 
+                                         showAllLevels = TRUE, 
+                                         noSpaces = TRUE,
+                                         smd = TRUE))
+# Extract percentages
+df_mcs_vr12_table$Cohort1_percent <- as.numeric(sub(".*\\(\\s*([0-9]*\\.?[0-9]+)\\s*\\)", "\\1", df_mcs_vr12_table$`Cohort 1 (1998)`))
+df_mcs_vr12_table$Cohort2_percent <- as.numeric(sub(".*\\(\\s*([0-9]*\\.?[0-9]+)\\s*\\)", "\\1", df_mcs_vr12_table$`Cohort 23 (2020)`))
+# calculate percent diff
+df_mcs_vr12_table$percent_diff <- df_mcs_vr12_table$Cohort2_percent - df_mcs_vr12_table$Cohort1_percent
+# and write to same excel workbook, new sheet
+wbss <- loadWorkbook("summary_stats.xlsx")
+addWorksheet(wbss, "mcs")
+writeData(wbss, sheet = "mcs", df_mcs_vr12_table, rowNames = TRUE) 
+saveWorkbook(wbss, file = "summary_stats.xlsx", overwrite = TRUE) # save sheet
 
 
 
@@ -168,7 +192,7 @@ adl_coh_angcad_table <- CreateTableOne(vars = adls_to_check,
 df_adl_coh_angcad_table <- as.data.frame(print(adl_coh_angcad_table, smd=TRUE))
 
 
-###################
+################### Figures
 ## Demographics by cohort
 # Proportional bar plot to compare age distribution by cohort
 ggplot(combined_data, aes(x = cohort, fill = AGE)) +
@@ -433,6 +457,62 @@ ggplot(combined_data, aes(x = cohort, fill = Pain_Work)) +
        x = "Cohort", 
        y = "Proportion", 
        fill = "Pain_Work") +
+  theme_minimal()
+
+
+## MCS of VR12 by cohort
+# emo amt limit
+ggplot(combined_data, aes(x = cohort, fill = Emo_Amount_Limit)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Emotional Problems Limiting Amount Accomplished\n by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Emo_Amount_Limit") +
+  theme_minimal()
+
+# emo carefulness
+ggplot(combined_data, aes(x = cohort, fill = Emo_Carefulness)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Emotional Problems Limiting Carefulness\n by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Emo_Carefulness") +
+  theme_minimal()
+
+# peace
+ggplot(combined_data, aes(x = cohort, fill = Peace)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Calm and Peaceful by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Peace") +
+  theme_minimal()
+
+# energy
+ggplot(combined_data, aes(x = cohort, fill = Energy)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Lots of Energy by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Energy") +
+  theme_minimal()
+
+# down
+ggplot(combined_data, aes(x = cohort, fill = Down)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Downhearted and Blue by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Down") +
+  theme_minimal()
+
+# social interference
+ggplot(combined_data, aes(x = cohort, fill = Social_Interference)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Amount of Time Health Interfering with Social Activities\n by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Social_Interference") +
   theme_minimal()
 
 
