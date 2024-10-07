@@ -380,7 +380,60 @@ ggplot(combined_data, aes(x = cohort, fill = Smoking_Status)) +
   theme_minimal()
 
 
+## PCS of VR12 by cohort
+# general health
+ggplot(combined_data, aes(x = cohort, fill = General_Health)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional General Health by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "General_Health") +
+  theme_minimal()
 
+# moderate activities
+ggplot(combined_data, aes(x = cohort, fill = Mod_Activity)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Limited Moderate Activities by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Mod_Activity") +
+  theme_minimal()
+
+# several flights of stairs
+ggplot(combined_data, aes(x = cohort, fill = Stairs)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Limited in Climbing Several Flights of Stairs by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Stairs") +
+  theme_minimal()
+
+# phys amt limit
+ggplot(combined_data, aes(x = cohort, fill = Phys_Amount_Limit)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Physical Health Limiting Amount Accomplished by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Phys_Amount_Limit") +
+  theme_minimal()
+
+# phys type limit
+ggplot(combined_data, aes(x = cohort, fill = Phys_Type_Limit)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Physical Health Kind of Activities by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Phys_Type_Limit") +
+  theme_minimal()
+
+# pain work
+ggplot(combined_data, aes(x = cohort, fill = Pain_Work)) +
+  geom_bar(position = "fill", width = 0.7) + 
+  labs(title = "Proportional Pain Interfering with Work by Cohort", 
+       x = "Cohort", 
+       y = "Proportion", 
+       fill = "Pain_Work") +
+  theme_minimal()
 
 
 ################
