@@ -188,12 +188,26 @@ arth_2020 <- gender_2020[gender_2020$Arth_Hip_Knee == 1, ]
 # "Phys_Type_Limit" - 1998 = 1 (Yes) 2 (No), 2020 1 (No) 2-5 (Yes)
 # "Emo_Amount_Limit" - 1998 = 1 (Yes) 2 (No), 2020 1 (No) 2-5 (Yes)
 # "Emo_Carefulness" - 1998 = 1 (Yes) 2 (No), 2020 1 (No) 2-5 (Yes)
-arth_2020$Phys_Amount_Limit <- ifelse(arth_2020$Phys_Amount_Limit == 1, 2, 1)
-arth_2020$Phys_Type_Limit <- ifelse(arth_2020$Phys_Type_Limit == 1, 2, 1)
-arth_2020$Emo_Amount_Limit <- ifelse(arth_2020$Emo_Amount_Limit == 1, 2, 1)
-arth_2020$Emo_Carefulness <- ifelse(arth_2020$Emo_Carefulness == 1, 2, 1)
+# arth_2020$Phys_Amount_Limit <- ifelse(arth_2020$Phys_Amount_Limit == 1, 2, 1)
+# arth_2020$Phys_Type_Limit <- ifelse(arth_2020$Phys_Type_Limit == 1, 2, 1)
+# arth_2020$Emo_Amount_Limit <- ifelse(arth_2020$Emo_Amount_Limit == 1, 2, 1)
+# arth_2020$Emo_Carefulness <- ifelse(arth_2020$Emo_Carefulness == 1, 2, 1)
+
+# SIKE! leave as is, just reorder to match for now
+# just swap within the 1998 cohort
+arth_1998$Phys_Amount_Limit <- ifelse(arth_1998$Phys_Amount_Limit == 1, 2, 1)
+arth_1998$Phys_Type_Limit <- ifelse(arth_1998$Phys_Type_Limit == 1, 2, 1)
+arth_1998$Emo_Amount_Limit <- ifelse(arth_1998$Emo_Amount_Limit == 1, 2, 1)
+arth_1998$Emo_Carefulness <- ifelse(arth_1998$Emo_Carefulness == 1, 2, 1)
+# and rescore the 2 to a 5 for 1998
+arth_1998$Phys_Amount_Limit[arth_1998$Phys_Amount_Limit == 2] <- 5
+arth_1998$Phys_Type_Limit[arth_1998$Phys_Type_Limit == 2] <- 5
+arth_1998$Emo_Amount_Limit[arth_1998$Emo_Amount_Limit == 2] <- 5
+arth_1998$Emo_Carefulness[arth_1998$Emo_Carefulness == 2] <- 5
+
 
 # Transforming ADL variables "Bathing", "Dressing", "Eating", "Chairs", "Walking", "Toilet" for 2020
+# (just reorder)
 # "Bathing" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
 # "Dressing" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
 # "Eating" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
@@ -284,14 +298,14 @@ combined_data$Stairs <- factor(combined_data$Stairs,
 
 # phys amt limit
 combined_data$Phys_Amount_Limit <- factor(combined_data$Phys_Amount_Limit, 
-                               levels = c(1, 2),
-                               labels = c("Yes, accomplished less", "No, not affected"),
+                               levels = c(5, 4, 3, 2, 1),
+                               labels = c("Yes, all of the time", "Yes, most of the time", "Yes, some of the time", "Yes, a little of the time", "No, none of the time"),
                                ordered = TRUE)
 
 # phys type limit
 combined_data$Phys_Type_Limit <- factor(combined_data$Phys_Type_Limit, 
-                                          levels = c(1, 2),
-                                          labels = c("Yes, limited", "No, not limited"),
+                                        levels = c(5, 4, 3, 2, 1),
+                                        labels = c("Yes, all of the time", "Yes, most of the time", "Yes, some of the time", "Yes, a little of the time", "No, none of the time"),
                                         ordered = TRUE)
 
 # pain work
@@ -302,14 +316,14 @@ combined_data$Pain_Work <- factor(combined_data$Pain_Work,
 
 # emo amount limit
 combined_data$Emo_Amount_Limit <- factor(combined_data$Emo_Amount_Limit, 
-                                          levels = c(1, 2),
-                                          labels = c("Yes, accomplished less", "No, not affected"),
+                                         levels = c(5, 4, 3, 2, 1),
+                                         labels = c("Yes, all of the time", "Yes, most of the time", "Yes, some of the time", "Yes, a little of the time", "No, none of the time"),
                                          ordered = TRUE)
 
 # emo carefulness
 combined_data$Emo_Carefulness <- factor(combined_data$Emo_Carefulness, 
-                                         levels = c(1, 2),
-                                         labels = c("Yes, less careful", "No, not affected"),
+                                        levels = c(5, 4, 3, 2, 1),
+                                        labels = c("Yes, all of the time", "Yes, most of the time", "Yes, some of the time", "Yes, a little of the time", "No, none of the time"),
                                         ordered = TRUE)
 
 # peace
@@ -326,13 +340,13 @@ combined_data$Energy <- factor(combined_data$Energy,
 
 # Down
 combined_data$Down <- factor(combined_data$Down,
-                             levels = c(6, 5, 4, 3, 2, 1),
-                             labels = c("None of the time", "A little of the time", "Some of the time", "A good bit of the time", "Most of the time", "All of the time"),
+                             levels = c(1, 2, 3, 4, 5, 6),
+                             labels = c("All of the time", "Most of the time", "A good bit of the time", "Some of the time", "A little of the time", "None of the time"),
                              ordered = TRUE)
 # social interference
 combined_data$Social_Interference <- factor(combined_data$Social_Interference,
-                                            levels = c(5, 4, 3, 2, 1),
-                                            labels = c("None of the time", "A little of the time", "Some of the time", "Most of the time", "All of the time"),
+                                            levels = c(1, 2, 3, 4, 5),
+                                            labels = c("All of the time", "Most of the time", "Some of the time", "A little of the time", "None of the time"),
                                             ordered = TRUE)
 
 # Bathing
@@ -483,7 +497,7 @@ addWorksheet(wb, "numerical")
 writeData(wb, sheet = "numerical", combined_data_copy) 
 
 # Save the workbook to a file
-saveWorkbook(wb, file = "combined_data.xlsx", overwrite = TRUE)
+saveWorkbook(wb, file = "combined_data_updated.xlsx", overwrite = TRUE)
 
 rm(wb) # remove workbook object
 gc() # run garbage collection (frees memory)
