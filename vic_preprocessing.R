@@ -1,129 +1,141 @@
-# Medicare HOS, R 4.4.1
-# PROMs trends over time: 1998 vs 2020 (cohort 1 vs 23)
+# Medicare HOS, R 4.4.2 (2024-10-31)
+# PROMs trends over time: 2006-2021 (cohorts 9-24)
 # this serves as the preprocessing script
 # where we take the raw HOS data, pare down to the arthritis,
 # demographics, and PROMs columns
 # remove outliers or weird answers
-# standardize the scoring to match between the two cohorts
-# get demographic characteristics about the raw data TODO.
-# ascii to csv conversion must be completed before this
-# Victoria Stevens 8/15/24
+# remove NAs
+# ascii to csv conversion must be completed before this (ascii_to_csv/ folder)
+# Victoria Stevens 11/26/24
 
 # imports
-install.packages("openxlsx")
+# install.packages("openxlsx")
 library(openxlsx)
 
-
-
 ## Set working directory -- change as needed (have to access CSVs below)
-# setwd("/Users/M296398/Desktop/medicare_HOS_ortho/medicare_hos")
-setwd("C:\\Users\\m296398\\Desktop\\medicare_hos")
+setwd("/Users/M296398/Desktop/medicare_hos")
+# setwd("C:\\Users\\m296398\\Desktop\\medicare_hos")
 
 
-## Read in PUF files -- change filenames as needed
-df_1998 <- read.csv("C1_1998_PUF.csv") # Cohort 1, 1998 = 134076 x 200
-df_2020 <- read.csv("C23A_2020_PUF.csv") # Cohort 23, 2020 = 281791 x 160
+## Read in PUF files
+df_2006 <- read.csv("data/raw/C9_2006.csv") # Cohort 9, 2006 = 123,053 x 43
+df_2007 <- read.csv("data/raw/C10_2007.csv") # Cohort 10, 2007 = 196,913 x 43
+df_2008 <- read.csv("data/raw/C11_2008.csv") # Cohort 11, 2008 = 240,682 x 43
+df_2009 <- read.csv("data/raw/C12_2009.csv") # Cohort 12, 2009 = 298,040 x 43
+df_2010 <- read.csv("data/raw/C13_2010.csv") # Cohort 13, 2010 = 347,945 x 43
+df_2011 <- read.csv("data/raw/C14_2011.csv") # Cohort 14, 2011 = 322,794 x 43
+df_2012 <- read.csv("data/raw/C15_2012.csv") # Cohort 15, 2012 = 321,395 x 43
+df_2013 <- read.csv("data/raw/C16_2013.csv") # Cohort 16, 2013 = 303,512 x 43
+df_2014 <- read.csv("data/raw/C17_2014.csv") # Cohort 17, 2014 = 301,790 x 43
+df_2015 <- read.csv("data/raw/C18_2015.csv") # Cohort 18, 2015 = 286,097 x 43
+df_2016 <- read.csv("data/raw/C19_2016.csv") # Cohort 19, 2016 = 260,608 x 43
+df_2017 <- read.csv("data/raw/C20_2017.csv") # Cohort 20, 2017 = 256,652 x 43
+df_2018 <- read.csv("data/raw/C21_2018.csv") # Cohort 21, 2018 = 239,071 x 43
+df_2019 <- read.csv("data/raw/C22_2019.csv") # Cohort 22, 2019 = 231,910 x 43
+df_2020 <- read.csv("data/raw/C23_2020.csv") # Cohort 23, 2020 = 287,476 x 43
+df_2021 <- read.csv("data/raw/C24_2021.csv") # Cohort 24, 2021 = 288,670 x 43
+
+df_names <- c(
+  "df_2006", "df_2007", "df_2008", "df_2009", 
+  "df_2010", "df_2011", "df_2012", "df_2013", 
+  "df_2014", "df_2015", "df_2016", "df_2017", 
+  "df_2018", "df_2019", "df_2020", "df_2021"
+)
 
 ### Data Preprocessing
-## Remove unnecessary cols -- we want demographics, arthritis status, and PROMs
-
-# TODO: no income status available (include as pitfall in paper), no retirement comm in cohort 23
-# only overlapping questions
-# had to recategorize for some (c23)
-# very broad categories (nature of survey data)
-# no residential status or BMI info on both
 
 # VR12
-# PCS = general health, moderate activities, climbing several stairs, accomplished less, limited in kind, pain interfernece
-#     B1GENHTH, B1MODACT, B1CLMBSV, B1PACML, B1PLMTKW. B1PNINTF
-#     B23VRGENHTH, B23VRMACT, B23VRSTAIR, B23VRPACCL, B23VRPWORK, B23VRPAIN
-# MCS = accomplished less, not carefully as usual, energy, peaceful, down-hearted, interference in social activites
-#     B1EACMPL, B1ENTCRF, B1ENERGY, B1PCEFUL, B1BLSAD, B1SCLACT
-#     B23VRMACCL, B23VRMWORK, B23VRENERGY, B23VRCALM, B23VRDOWN, B23VRSACT
+# PCS = general health, moderate activities, climbing several stairs, 
+#   accomplished less, limited in kind, pain interfernece
+# MCS = accomplished less, not carefully as usual, energy, peaceful, 
+#   down-hearted, interference in social activites
+
 # ADLs = bathing, dressing, eating, chairs, walking, toilet
-#     B1DIFBTH, B1DIFDRS, B1DIFEAT, B1DIFCHR, B1DIFWLK, B1DIFTOL
-#     B23ADLBTH, B23ADLDRS, B23ADLEAT, B23ADLCHR, B23ADLWLK, B23ADLTLT
-# comorbidities: htn, angina/CAD, CHF, MI, other heart, stroke, COPD, IBD, HKA, HWA, sciatica, DBM, any cancer
-#     B1HIGHBP, B1ANGCAD, B1CHF, B1AMI, B1OTHHRT, B1STROKE, B1COPD_E,  B1GI_ETC,  B1ATHHIP, B1ATHHAN, B1WSCIATC, B1DIABET, B1ANYCAN
-#     B23CCHBP, B23CC_CAD, B23CC_CHF, B23CCMI, B23CCHRTOTH,  B23CCSTROKE, B23CC_COPD, B23CCGI, B23CCARTHIP, B23CCARTHND, B23CCSCIATI, B23CCDIABET, B23CCANYCA
+
+# comorbidities: htn, angina/CAD, CHF, MI, other heart, stroke, COPD, 
+#   IBD, HKA, HWA, sciatica, DBM, any cancer
+
 # smoking: current smoker
-#     B1SMKFRQ
-#     B23SMOKE
-# survey disposition (98) , CMS plan region (102) , person ccompleting
-#     B1SRVDSP, P1PLREGCDE, B1WHOCMP
-#     B23SRVDISP, P23PLREGCDE, B23CMPWHO
 
-c1_cols <- c(
-  "CASE_ID", "AGE", "RACE", "GENDER", "MRSTAT", "EDUC", "B1ATHHIP", "B1ATHHAN", "B1GENHTH", 
-  "B1MODACT", "B1CLMBSV", "B1PACMPL", "B1PLMTKW", "B1PNINTF", "B1EACMPL",  
-  "B1ENTCRF", "B1PCEFUL", "B1ENERGY", "B1BLSAD", "B1SCLACT", "B1DIFBTH", 
-  "B1DIFDRS", "B1DIFEAT", "B1DIFCHR", "B1DIFWLK", "B1DIFTOL", "B1HIGHBP",
-  "B1ANGCAD", "B1CHF", "B1AMI", "B1OTHHRT", "B1STROKE", "B1COPD_E", "B1GI_ETC",
-  "B1SCIATC", "B1DIABET", "B1ANYCAN", "B1SMKFRQ", "B1SRVDSP", "P1PLREGCDE", "B1WHOCMP"
-) # length = 41
-c23_cols <- c(
-  "CASE_ID", "AGE", "RACE", "GENDER", "MRSTAT", "EDUC", "B23CCARTHIP", "B23CCARTHND",
-  "B23VRGENHTH", "B23VRMACT", "B23VRSTAIR", "B23VRPACCL", "B23VRPWORK", 
-  "B23VRPAIN","B23VRMACCL", "B23VRMWORK",  "B23VRCALM", "B23VRENERGY", 
-  "B23VRDOWN", "B23VRSACT", "B23ADLBTH", "B23ADLDRS", "B23ADLEAT", 
-  "B23ADLCHR", "B23ADLWLK", "B23ADLTLT", "B23CCHBP", "B23CC_CAD",
-  "B23CC_CHF", "B23CCMI", "B23CCHRTOTH", "B23CCSTROKE", "B23CC_COPD",
-  "B23CCGI", "B23CCSCIATI", "B23CCDIABET", "B23CCANYCA", "B23SMOKE",
-  "B23SRVDISP", "P23PLREGCDE", "B23CMPWHO"
-) # length = 41
+# survey disposition, CMS plan region, person completing
 
-filtered_df_1998 <- df_1998[, c1_cols]
-filtered_df_2020 <- df_2020[, c23_cols]
 
 ## Standardize column names between the two cohorts
-new_col_names <- c(
-  "CASE_ID", "AGE", "RACE", "GENDER", "MRSTAT", "EDUC", "Arth_Hip_Knee", "Arth_Hand_Wr", "General_Health", 
-  "Mod_Activity", "Stairs", "Phys_Amount_Limit", "Phys_Type_Limit", "Pain_Work",
-  "Emo_Amount_Limit", "Emo_Carefulness",  "Peace", "Energy", "Down", "Social_Interference", 
-  "Bathing", "Dressing", "Eating", "Chairs", "Walking", "Toilet", "Hypertension", 
-  "ANG_CAD",  "CHF", "MI", "Heart_Other", "Stroke", "COPD", "IBD", "Sciatica",
-  "Diabetes", "Cancer", "Smoking_Status", "Survey_Disp", "Region", "Who_Comp"
-) # length = 41
-# Copy and replace column names
-renamed_df_1998 <- `names<-`(filtered_df_1998, replace(names(filtered_df_1998), match(c1_cols, names(filtered_df_1998)), new_col_names))
-renamed_df_2020 <- `names<-`(filtered_df_2020, replace(names(filtered_df_2020), match(c23_cols, names(filtered_df_2020)), new_col_names))
+new_fields <- c(
+  "CASE_ID", "AGE", "RACE", "GENDER", "MRSTAT", "EDUC", "BMICAT", 
+  "General_Health", "Mod_Activity", "Stairs", "Phys_Amount_Limit", 
+  "Phys_Type_Limit", "Emo_Amount_Limit", "Emo_Carefulness", "Pain_Work", 
+  "Peace", "Energy", "Down", "Social_Interference", "Bathing", 
+  "Dressing", "Eating", "Chairs", "Walking", "Toilet", "Hypertension", 
+  "ANG_CAD", "CHF", "MI", "Heart_Other", "Stroke", "COPD", "IBD", 
+  "Arth_Hip_Knee", "Arth_Hand_Wr", "Osteo", "Sciatica", "Diabetes", 
+  "Cancer", "Smoking_Status", "Who_Comp", "Survey_Disp", "Region"
+) # length = 43
 
 ## Remove patients that didn't answer all the questions (NAs/blanks)
 # Checking the datatypes within each column for each cohort -- make sure they match up
-# Loop through each column name
-for (col in new_col_names) {
-  # Check its datatypes
-  unique_types <- unique(sapply(renamed_df_1998[[col]], typeof))
-  unique_types2 <- unique(sapply(renamed_df_2020[[col]], typeof))
+# Loop through each data frame name
+sink("console_output.txt")
+for (df_name in df_names) {
+  # Access the data frame dynamically using `get`
+  df <- get(df_name)
   
-  # and print
-  cat("Column:", col, "\n")
-  print("cohort 1")
-  print(unique_types)
-  print("cohort 23")
-  print(unique_types2)
-  cat("\n")
-} # all cols are of type integer except CASE_ID & Survey_Disp, which are char
+  for (col in new_fields) {
+    # Check its datatypes in the current data frame
+    unique_types <- unique(sapply(df[[col]], typeof))
+    
+    # Print the information
+    cat("Data frame:", df_name, "\n")
+    cat("Column:", col, "\n")
+    print(unique_types)
+    cat("\n")
+  }
+}
+# all cols are of type integer except CASE_ID & Survey_Disp, which are char
+sink()
 
 # Handle char column = CASE_ID
 # Function to check if a char value is "empty"
 is_empty_char <- function(x) {
   is.null(x) || is.na(x) || x == "" || grepl("^\\s*$", x) || x == "\u00A0" || x == "\u200B" || x == "\n"
 }
-# Apply the empty check to the 'CASE_ID' column
-empty_rows_1998 <- sapply(renamed_df_1998$CASE_ID, is_empty_char)
-empty_rows_2020 <- sapply(renamed_df_1998$CASE_ID, is_empty_char)
 
-# Filter the data frames to remove rows with "empty" values in the 'CASE_ID' column
-# This didn't make a difference but useful check to have
-cleaned_1998 <- renamed_df_1998[!empty_rows_1998, ]
-cleaned_2020 <- renamed_df_2020[!empty_rows_2020, ]
+# Loop through each data frame
+for (df_name in df_names) {
+  # Access the data frame dynamically
+  df <- get(df_name)
+  
+  # Apply the empty check to the 'CASE_ID' column
+  empty_rows <- sapply(df$CASE_ID, is_empty_char)
+  
+  # Filter the data frame to remove rows with "empty" values in the 'CASE_ID' column
+  cleaned_df <- df[!empty_rows, ]
+  
+  # Optionally, assign the cleaned data back to a new variable (or overwrite the old one)
+  assign(paste0("cleaned_", df_name), cleaned_df)
+  
+  # Optional: Print a summary for confirmation
+  cat("Data frame processed:", df_name, "- Rows removed:", sum(empty_rows), "\n")
+} # This didn't make a difference but useful check to have
+
 
 # Do it again but for 'Survey_Disp' column (also didn't make difference)
-empty_rows_1998_2 <- sapply(cleaned_1998$Survey_Disp, is_empty_char)
-empty_rows_2020_2 <- sapply(cleaned_2020$Survey_Disp, is_empty_char)
-cleaned_1998_2 <- renamed_df_1998[!empty_rows_1998_2, ]
-cleaned_2020_2 <- renamed_df_2020[!empty_rows_2020_2, ]
+for (df_name in df_names) {
+  # Access the data frame dynamically
+  df <- get(df_name)
+  
+  # Apply the empty check to the 'CASE_ID' column
+  empty_rows <- sapply(df$Survey_Disp, is_empty_char)
+  
+  # Filter the data frame to remove rows with "empty" values in the 'CASE_ID' column
+  cleaned_df <- df[!empty_rows, ]
+  
+  # Optionally, assign the cleaned data back to a new variable (or overwrite the old one)
+  assign(paste0("cleaned_", df_name), cleaned_df)
+  
+  # Optional: Print a summary for confirmation
+  cat("Data frame processed:", df_name, "- Rows removed:", sum(empty_rows), "\n")
+}
 
 # Handle integer columns
 # Function to check if a integer value is "empty"
@@ -131,24 +143,60 @@ is_empty_integer <- function(x) {
   is.null(x) || is.na(x) || length(x) == 0
 }
 # Apply the empty check to the rest of the columns
-cols_to_check <- c(
-  "AGE", "RACE", "GENDER", "MRSTAT", "EDUC", "Arth_Hip_Knee", "Arth_Hand_Wr", "General_Health", 
-  "Mod_Activity", "Stairs", "Phys_Amount_Limit", "Phys_Type_Limit", "Pain_Work",
-  "Emo_Amount_Limit", "Emo_Carefulness",  "Peace", "Energy", "Down", "Social_Interference", 
-  "Bathing", "Dressing", "Eating", "Chairs", "Walking", "Toilet", "Hypertension", 
-  "ANG_CAD",  "CHF", "MI", "Heart_Other", "Stroke", "COPD", "IBD", "Sciatica",
-  "Diabetes", "Cancer", "Smoking_Status", "Region", "Who_Comp"
-)
-for (col in cols_to_check) {
-  # remove rows with "empty" values
-  cleaned_again_1998 <- cleaned_1998_2[!sapply(cleaned_1998_2[[col]], is_empty_integer), ]
-  cleaned_again_2020 <- cleaned_2020_2[!sapply(cleaned_2020_2[[col]], is_empty_integer), ]
+int_cols <- c(
+  "AGE", "RACE", "GENDER", "MRSTAT", "EDUC", "BMICAT", 
+  "General_Health", "Mod_Activity", "Stairs", "Phys_Amount_Limit", 
+  "Phys_Type_Limit", "Emo_Amount_Limit", "Emo_Carefulness", "Pain_Work", 
+  "Peace", "Energy", "Down", "Social_Interference", "Bathing", 
+  "Dressing", "Eating", "Chairs", "Walking", "Toilet", "Hypertension", 
+  "ANG_CAD", "CHF", "MI", "Heart_Other", "Stroke", "COPD", "IBD", 
+  "Arth_Hip_Knee", "Arth_Hand_Wr", "Osteo", "Sciatica", "Diabetes", 
+  "Cancer", "Smoking_Status", "Who_Comp", "Region"
+) # length = 41
+
+for (df_name in df_names) {
+  # Access the data frame dynamically
+  df <- get(df_name)
+  
+  # Start with the original cleaned version
+  cleaned_df <- df
+  
+  # Loop through integer columns and remove rows with "empty" values
+  for (col in int_cols) {
+    cleaned_df <- cleaned_df[!sapply(cleaned_df[[col]], is_empty_integer), ]
+  }
+  
+  # Optionally, assign the final cleaned data back to a new variable (or overwrite the old one)
+  assign(paste0("cleaned_", df_name), cleaned_df)
+  
+  # Optional: Print a summary for confirmation
+  cat("Data frame processed:", df_name, "- Rows remaining:", nrow(cleaned_df), "\n")
 }
+
+cleaned_df_names <- c(
+  "cleaned_df_2006", "cleaned_df_2007", "cleaned_df_2008", "cleaned_df_2009", 
+  "cleaned_df_2010", "cleaned_df_2011", "cleaned_df_2012", 
+  "cleaned_df_2013", "cleaned_df_2014", "cleaned_df_2015", 
+  "cleaned_df_2016", "cleaned_df_2017", "cleaned_df_2018", 
+  "cleaned_df_2019", "cleaned_df_2020", "cleaned_df_2021"
+)
 
 # double check that we really got rid of all the NAs/empties
 # Use complete.cases() to remove rows with NA in the specified columns
-cleanest_1998 <- cleaned_again_1998[complete.cases(cleaned_again_1998[, new_col_names]), ]
-cleanest_2020 <- cleaned_again_2020[complete.cases(cleaned_again_2020[, new_col_names]), ]
+# Loop through each cleaned data frame
+for (df_name in cleaned_df_names) {
+  # Access the data frame dynamically
+  cleaned_df <- get(df_name)
+  
+  # Use complete.cases() to remove rows with NA in the specified columns
+  cleanest_df <- cleaned_df[complete.cases(cleaned_df[, new_fields]), ]
+  
+  # Assign the fully cleaned data frame to a new variable
+  assign(paste0("cleanest_", df_name), cleanest_df)
+  
+  # Optional: Print a summary of rows removed
+  cat("Data frame processed:", df_name, "- Rows remaining:", nrow(cleanest_df), "\n")
+}
 
 ## Select the patients with arthritis & removal of extraneous data
 # >=80% survey complete
@@ -182,44 +230,8 @@ gender_2020 <- smoke_2020[smoke_2020$GENDER != 3, ]
 arth_1998 <- gender_1998[gender_1998$Arth_Hip_Knee == 1, ]
 arth_2020 <- gender_2020[gender_2020$Arth_Hip_Knee == 1, ]
 
-## Make sure all scoring is the same (differs from year to year, refer to HOS docs)
-# VR12: Transforming "Phys_Amount_Limit", "Phys_Type_Limit", "Emo_Amount_Limit", "Emo_Carefulness" for 2020
-# "Phys_Amount_Limit" - 1998 = 1 (Yes) 2 (No), 2020 1 (No) 2-5 (Yes)
-# "Phys_Type_Limit" - 1998 = 1 (Yes) 2 (No), 2020 1 (No) 2-5 (Yes)
-# "Emo_Amount_Limit" - 1998 = 1 (Yes) 2 (No), 2020 1 (No) 2-5 (Yes)
-# "Emo_Carefulness" - 1998 = 1 (Yes) 2 (No), 2020 1 (No) 2-5 (Yes)
-# arth_2020$Phys_Amount_Limit <- ifelse(arth_2020$Phys_Amount_Limit == 1, 2, 1)
-# arth_2020$Phys_Type_Limit <- ifelse(arth_2020$Phys_Type_Limit == 1, 2, 1)
-# arth_2020$Emo_Amount_Limit <- ifelse(arth_2020$Emo_Amount_Limit == 1, 2, 1)
-# arth_2020$Emo_Carefulness <- ifelse(arth_2020$Emo_Carefulness == 1, 2, 1)
-
-# SIKE! leave as is, just reorder to match for now
-# just swap within the 1998 cohort
-arth_1998$Phys_Amount_Limit <- ifelse(arth_1998$Phys_Amount_Limit == 1, 2, 1)
-arth_1998$Phys_Type_Limit <- ifelse(arth_1998$Phys_Type_Limit == 1, 2, 1)
-arth_1998$Emo_Amount_Limit <- ifelse(arth_1998$Emo_Amount_Limit == 1, 2, 1)
-arth_1998$Emo_Carefulness <- ifelse(arth_1998$Emo_Carefulness == 1, 2, 1)
-# and rescore the 2 to a 5 for 1998
-arth_1998$Phys_Amount_Limit[arth_1998$Phys_Amount_Limit == 2] <- 5
-arth_1998$Phys_Type_Limit[arth_1998$Phys_Type_Limit == 2] <- 5
-arth_1998$Emo_Amount_Limit[arth_1998$Emo_Amount_Limit == 2] <- 5
-arth_1998$Emo_Carefulness[arth_1998$Emo_Carefulness == 2] <- 5
 
 
-# Transforming ADL variables "Bathing", "Dressing", "Eating", "Chairs", "Walking", "Toilet" for 2020
-# (just reorder)
-# "Bathing" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
-# "Dressing" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
-# "Eating" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
-# "Chairs" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
-# "Walking" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
-# "Toilet" - 1998 = 1 (Can't do) 2 (Yes, difficult) 3 (No difficulty), 2020 = 1 (no difficulty) 2 (yes, difficult) 3 (can't do)
-arth_2020$Bathing <- ifelse(arth_2020$Bathing == 1, 3, ifelse(arth_2020$Bathing == 2, 2, 1))
-arth_2020$Dressing <- ifelse(arth_2020$Dressing == 1, 3, ifelse(arth_2020$Dressing == 2, 2, 1))
-arth_2020$Eating <- ifelse(arth_2020$Eating == 1, 3, ifelse(arth_2020$Eating == 2, 2, 1))
-arth_2020$Chairs <- ifelse(arth_2020$Chairs == 1, 3, ifelse(arth_2020$Chairs == 2, 2, 1))
-arth_2020$Walking <- ifelse(arth_2020$Walking == 1, 3, ifelse(arth_2020$Walking == 2, 2, 1))
-arth_2020$Toilet <- ifelse(arth_2020$Toilet == 1, 3, ifelse(arth_2020$Toilet == 2, 2, 1))
 
 # checking that the values of each column make sense
 for (col_name in colnames(arth_1998)) {
