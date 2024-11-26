@@ -2,14 +2,15 @@
 ## V. Stevens 11/16/24
 
 # Set working directory
-setwd("C:\\Users\\m296398\\Desktop\\medicare_hos\\ascii_to_csv")
+# setwd("C:\\Users\\m296398\\Desktop\\medicare_hos\\ascii_to_csv")
+setwd("/Users/m296398/Desktop/medicare_hos/ascii_to_csv")
 
 # Define the file path to the fixed-width ASCII file.
-ascii_file <- "C11B_PUF.TXT"
+# ascii_file <- "C11B_PUF.TXT"
 # ascii_file <- "C12B_PUF.TXT"
 # ascii_file <- "C13B_PUF.TXT"
 # ascii_file <- "C14B_PUF.TXT"
-# ascii_file <- "C15B_PUF.TXT"
+ascii_file <- "C15B_PUF.TXT"
 
 # List of column names for converted file (CSV fields)
 # TODO: there is a more elegant way to do this -- read from CSV file
@@ -27,7 +28,8 @@ new_fields <- c(
 
 # checks to see how many records (rows) there are in the original ASCII file
 all_lines <- readLines(ascii_file)
-length(all_lines) # 123053 for 2006
+length(all_lines) # 240682 for 2008, 298040 for 2009, 347945 for 2010
+# 322794 for 2011, 321395 for 2012
 
 # Define the indices and column names
 start_indices <- c(
@@ -58,8 +60,9 @@ for (i in seq_along(all_lines)) {
 # Export the DataFrame into a CSV file and name the file
 # this will also take a sec
 # row.names false to not copy over record (row) number
-write.csv(output_df, file = "C11_2008_PUF.csv", row.names = FALSE)
-write.csv(output_df, file = "C12_2009_PUF.csv", row.names = FALSE)
-write.csv(output_df, file = "C13_2010_PUF.csv", row.names = FALSE)
-write.csv(output_df, file = "C14_2011_PUF.csv", row.names = FALSE)
+# write.csv(output_df, file = "C11_2008_PUF.csv", row.names = FALSE)
+# write.csv(output_df, file = "C12_2009_PUF.csv", row.names = FALSE)
+# write.csv(output_df, file = "C13_2010_PUF.csv", row.names = FALSE)
+# write.csv(output_df, file = "C14_2011_PUF.csv", row.names = FALSE)
 write.csv(output_df, file = "C15_2012_PUF.csv", row.names = FALSE)
+gc()

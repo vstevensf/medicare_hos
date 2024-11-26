@@ -2,7 +2,8 @@
 ## V. Stevens 11/16/24
 
 # Set working directory
-setwd("C:\\Users\\m296398\\Desktop\\medicare_hos\\ascii_to_csv")
+# setwd("C:\\Users\\m296398\\Desktop\\medicare_hos\\ascii_to_csv")
+setwd("/Users/m296398/Desktop/medicare_hos/ascii_to_csv")
 
 # Define the file path to the fixed-width ASCII file.
 # ascii_file <- "C9B_PUF.TXT"
@@ -24,7 +25,7 @@ new_fields <- c(
 
 # checks to see how many records (rows) there are in the original ASCII file
 all_lines <- readLines(ascii_file)
-length(all_lines) # 123053 for 2006
+length(all_lines) # 123053 for 2006, 196913 for 2007
 
 # Define the indices and column names
 start_indices <- c(
@@ -55,5 +56,5 @@ for (i in seq_along(all_lines)) {
 # Export the DataFrame into a CSV file and name the file
 # this will also take a sec
 # row.names false to not copy over record (row) number
-write.csv(output_df, file = "C9_2006_PUF.csv", row.names = FALSE)
+# write.csv(output_df, file = "C9_2006_PUF.csv", row.names = FALSE)
 write.csv(output_df, file = "C10_2007_PUF.csv", row.names = FALSE)
