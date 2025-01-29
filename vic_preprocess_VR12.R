@@ -29,7 +29,7 @@ vr12_copy <- vr12_copy %>% rename(VT2 = Energy)
 vr12_copy <- vr12_copy %>% rename(MH4 = Down)
 vr12_copy <- vr12_copy %>% rename(SF2 = Social_Interference)
 
-# and rescore when necessary\
+# and rescore when necessary
 # General Health
 # combined_data$General_Health <- factor(combined_data$General_Health,
 #                                        levels = c(5, 4, 3, 2, 1),
@@ -131,7 +131,7 @@ vr12score(file.in="C:/Users/m296398/Desktop/medicare_hos/vr12_copy.csv",
 ## and finally, add values to combined data df
 
 vr12data <- read.csv("C:/Users/m296398/Desktop/medicare_hos/vr12_scores.csv")
-vr12data <- vr12data %>% select(CASE_ID, PCS, MCS)
+vr12data <- vr12data %>% select(CASE_ID, cohort, PCS, MCS)
 
 # This performs a left join
 combined_data <- merge(combined_data, vr12data[, c("CASE_ID", "PCS", "MCS")], by = "CASE_ID", all.x = TRUE)

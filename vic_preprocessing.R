@@ -1,4 +1,4 @@
-# Medicare HOS, R 4.4.2 (2024-10-31)
+# Medicare HOS
 # PROMs trends over time: 2006-2021 (cohorts 9-24)
 # this serves as the preprocessing script
 # where we take the raw HOS data, pare down to the arthritis,
@@ -13,8 +13,8 @@
 library(openxlsx)
 
 ## Set working directory -- change as needed (have to access CSVs below)
-setwd("/Users/M296398/Desktop/medicare_hos")
-# setwd("C:\\Users\\m296398\\Desktop\\medicare_hos")
+# setwd("/Users/M296398/Desktop/medicare_hos")
+setwd("C:\\Users\\m296398\\Desktop\\medicare_hos")
 
 
 ## Read in PUF files
@@ -121,6 +121,7 @@ for (df_name in df_names) {
 
 # Do it again but for 'Survey_Disp' column (also didn't make difference)
 for (df_name in df_names) {
+  print(df_name)
   # Access the data frame dynamically
   df <- get(df_name)
   
@@ -192,85 +193,139 @@ for (df_name in cleaned_df_names) {
   cleanest_df <- cleaned_df[complete.cases(cleaned_df[, new_fields]), ]
   
   # Assign the fully cleaned data frame to a new variable
-  assign(paste0("cleanest_", df_name), cleanest_df)
+  assign(df_name, cleanest_df)
   
   # Optional: Print a summary of rows removed
   cat("Data frame processed:", df_name, "- Rows remaining:", nrow(cleanest_df), "\n")
 }
 
-## Select the patients with arthritis & removal of extraneous data
-# >=80% survey complete
-unique(cleanest_1998$Survey_Disp)
-unique(cleanest_2020$Survey_Disp)
-complete_surv_1998 <- subset(cleanest_1998, Survey_Disp %in% c("M10", "T10"))
-complete_surv_2020 <- subset(cleanest_2020, Survey_Disp %in% c("M10", "T10"))
-unique(complete_surv_1998$Survey_Disp)
-unique(complete_surv_2020$Survey_Disp)
 
+## Select the patients with arthritis & removal of extraneous data
 # get rid of responses filled by proxy
-no_proxy_1998 <- subset(complete_surv_1998, Who_Comp %in% c(1))
-no_proxy_2020 <- subset(complete_surv_2020, Who_Comp %in% c(1))
+for (df_name in cleaned_df_names) {
+  # Dynamically access the data frame using `get`
+  df <- get(df_name)
+  
+  # Apply the subset operation
+  df <- subset(df, Who_Comp %in% c(1))
+  
+  # Assign the cleaned data back to the original name
+  assign(df_name, df)
+}
 
 # keep age >= 65
-aged_1998 <- subset(no_proxy_1998, AGE %in% c(2, 3))
-aged_2020 <- subset(no_proxy_2020, AGE %in% c(2, 3))
+for (df_name in cleaned_df_names) {
+  # Dynamically access the data frame using `get`
+  df <- get(df_name)
+  
+  # Apply the subset operation
+  df <- subset(df, AGE %in% c(2, 3))
+  
+  # Assign the cleaned data back to the original name
+  assign(df_name, df)
+}
 
 # no smoking "dont know"
-smoke_1998 <- subset(aged_1998, Smoking_Status %in% c(1, 2, 3))
-smoke_2020 <- subset(aged_2020, Smoking_Status %in% c(1, 2, 3))
+for (df_name in cleaned_df_names) {
+  # Dynamically access the data frame using `get`
+  df <- get(df_name)
+  
+  # Apply the subset operation
+  df <- subset(df, Smoking_Status %in% c(1, 2, 3))
+  
+  # Assign the cleaned data back to the original name
+  assign(df_name, df)
+}
 
-# Remove rows where GENDER == 3
-unique(smoke_1998$GENDER)
-unique(smoke_2020$GENDER)
-gender_1998 <- smoke_1998[smoke_1998$GENDER != 3, ] 
-gender_2020 <- smoke_2020[smoke_2020$GENDER != 3, ] 
+# # Remove rows where GENDER == 3
+# for (df_name in cleaned_df_names) {
+#   # Access the data frame dynamically
+#   df <- get(df_name)
+#   
+#   # Filter rows where GENDER is not equal to 3
+#   df <- df[df$GENDER != 3, ]
+#   
+#   # Reassign the filtered data frame back to the original name
+#   assign(df_name, df)
+# }
 
-#create cohorts of patients with arthritis
+#create cohorts of patients with H/K arthritis
 #1 = yes, 2 = no -- so keep the rows that have 1 as the value under arthritis (hip/knee)
-arth_1998 <- gender_1998[gender_1998$Arth_Hip_Knee == 1, ]
-arth_2020 <- gender_2020[gender_2020$Arth_Hip_Knee == 1, ]
+for (df_name in cleaned_df_names) {
+  # Access the data frame dynamically
+  df <- get(df_name)
 
+  # Filter rows where Arth_Hip_Knee is Yes (1)
+  df <- df[df$Arth_Hip_Knee == 1, ]
 
-
-
-# checking that the values of each column make sense
-for (col_name in colnames(arth_1998)) {
-  unique_values <- unique(arth_1998[[col_name]])  # Get unique values for each column
-  print(paste("Unique values in column", col_name, ":"))
-  print(unique_values)
-}
-for (col_name in colnames(arth_2020)) {
-  unique_values <- unique(arth_2020[[col_name]])  # Get unique values for each column
-  print(paste("Unique values in column", col_name, ":"))
-  print(unique_values)
+  # Reassign the filtered data frame back to the original name
+  assign(df_name, df)
 }
 
 
-## Combining the cohorts into one dataframe (necessary for propensity matching)
-# Add a binary cohort variable indicating the...cohort
-arth_1998$cohort <- 0 # 11603 x 42
-arth_2020$cohort <- 1 # 59090 x 42
+## Combining the cohorts into one dataframe
+# Add a numerical cohort variable indicating the...cohort
+cleaned_df_2006$cohort <- 2006 # 25884 x 44
+cleaned_df_2007$cohort <- 2007 # 37560 x 44
+cleaned_df_2008$cohort <- 2008 # 45449 x 44
+cleaned_df_2009$cohort <- 2009 # 58795 x 44
+cleaned_df_2010$cohort <- 2010 # 65352 x 44
+cleaned_df_2011$cohort <- 2011 # 60399 x 44
+cleaned_df_2012$cohort <- 2012 # 60119 x 44
+cleaned_df_2013$cohort <- 2013 # 53153 x 44
+cleaned_df_2014$cohort <- 2014 # 53213 x 44
+cleaned_df_2015$cohort <- 2015 # 50612 x 44
+cleaned_df_2016$cohort <- 2016 # 47899 x 44
+cleaned_df_2017$cohort <- 2017 # 46578 x 44
+cleaned_df_2018$cohort <- 2018 # 43669 x 44
+cleaned_df_2019$cohort <- 2019 # 44980 x 44
+cleaned_df_2020$cohort <- 2020 # 57555 x 44
+cleaned_df_2021$cohort <- 2021 # 59100 x 44
 
 
 # Combine the cohort dataframes (vertical stack)
 # column names, number, and datatype must match (made sure of this above w preprocessing)
-combined_data <- rbind(arth_1998, arth_2020) # 70693 records/rows
-combined_data_copy <- combined_data
+combined_data <- rbind(
+  cleaned_df_2006, 
+  cleaned_df_2007, 
+  cleaned_df_2008, 
+  cleaned_df_2009, 
+  cleaned_df_2010, 
+  cleaned_df_2011, 
+  cleaned_df_2012, 
+  cleaned_df_2013, 
+  cleaned_df_2014, 
+  cleaned_df_2015, 
+  cleaned_df_2016, 
+  cleaned_df_2017, 
+  cleaned_df_2018, 
+  cleaned_df_2019, 
+  cleaned_df_2020, 
+  cleaned_df_2021
+) # 810317 x 44
+
+# and read into excel sheet
+# Create a new workbook
+wb <- createWorkbook()
+
+# for numerical data
+addWorksheet(wb, "numerical")
+writeData(wb, sheet = "numerical", combined_data) 
 
 #### Factoring for categorical data
 # age
 combined_data$AGE <- factor(combined_data$AGE, 
-                               levels = c(2, 3),
-                               labels = c("65 to 74", "Greater than 74"),
+                            levels = c(2, 3),
+                            labels = c("65 to 74", "Greater than 74"),
                             ordered = TRUE)
 # race
 combined_data$RACE <- factor(combined_data$RACE, 
-                            levels = c(1, 2, 3),
-                            labels = c("White", "Black or African American", "Other"))
+                             levels = c(1, 2, 3),
+                             labels = c("White", "Black or African American", "Other"))
 # gender
 combined_data$GENDER <- factor(combined_data$GENDER, 
-                             levels = c(1, 2),
-                             labels = c("Male", "Female"))
+                               levels = c(1, 2),
+                               labels = c("Male", "Female"))
 
 # marital status
 combined_data$MRSTAT <- factor(combined_data$MRSTAT, 
@@ -279,40 +334,52 @@ combined_data$MRSTAT <- factor(combined_data$MRSTAT,
 
 # education
 combined_data$EDUC <- factor(combined_data$EDUC, 
-                               levels = c(1, 2, 3),
-                               labels = c("Less than GED", "GED", "Greater than GED"),
+                             levels = c(1, 2, 3),
+                             labels = c("Less than GED", "GED", "Greater than GED"),
                              ordered = TRUE)
+
+# BMI
+combined_data$BMICAT <- factor(combined_data$BMICAT, 
+                               levels = c(1, 2),
+                               labels = c("BMI < 30 (not obese)", "BMI ≥ 30 (obese)"),
+                               ordered = TRUE)
 
 # Arthritis of Hip/Knee
 combined_data$Arth_Hip_Knee <- factor(combined_data$Arth_Hip_Knee, 
-                             levels = c(1, 2),
-                             labels = c("Yes", "No"))
-# Arthritis of Hand/Wrist
-combined_data$Arth_Hand_Wr <- factor(combined_data$Arth_Hand_Wr, 
                                       levels = c(1, 2),
                                       labels = c("Yes", "No"))
+# Arthritis of Hand/Wrist
+combined_data$Arth_Hand_Wr <- factor(combined_data$Arth_Hand_Wr, 
+                                     levels = c(1, 2),
+                                     labels = c("Yes", "No"))
+
+# Osteoporosis
+combined_data$Osteo <- factor(combined_data$Osteo, 
+                                     levels = c(1, 2),
+                                     labels = c("Yes", "No"))
+
 # General Health
 combined_data$General_Health <- factor(combined_data$General_Health,
                                        levels = c(5, 4, 3, 2, 1),
                                        labels = c("Poor", "Fair", "Good", "Very Good", "Excellent"),
-                                     ordered = TRUE)
+                                       ordered = TRUE)
 # Moderate Activities
 combined_data$Mod_Activity <- factor(combined_data$Mod_Activity, 
-                                       levels = c(1, 2, 3),
-                                       labels = c("Yes, limited a lot", "Yes, limited a little", "No, not limited at all"),
+                                     levels = c(1, 2, 3),
+                                     labels = c("Yes, limited a lot", "Yes, limited a little", "No, not limited at all"),
                                      ordered = TRUE)
 
 # Climbing several flights of stairs
 combined_data$Stairs <- factor(combined_data$Stairs, 
-                                     levels = c(1, 2, 3),
-                                     labels = c("Yes, limited a lot", "Yes, limited a little", "No, not limited at all"),
+                               levels = c(1, 2, 3),
+                               labels = c("Yes, limited a lot", "Yes, limited a little", "No, not limited at all"),
                                ordered = TRUE)
 
 # phys amt limit
 combined_data$Phys_Amount_Limit <- factor(combined_data$Phys_Amount_Limit, 
-                               levels = c(5, 4, 3, 2, 1),
-                               labels = c("Yes, all of the time", "Yes, most of the time", "Yes, some of the time", "Yes, a little of the time", "No, none of the time"),
-                               ordered = TRUE)
+                                          levels = c(5, 4, 3, 2, 1),
+                                          labels = c("Yes, all of the time", "Yes, most of the time", "Yes, some of the time", "Yes, a little of the time", "No, none of the time"),
+                                          ordered = TRUE)
 
 # phys type limit
 combined_data$Phys_Type_Limit <- factor(combined_data$Phys_Type_Limit, 
@@ -363,37 +430,37 @@ combined_data$Social_Interference <- factor(combined_data$Social_Interference,
 
 # Bathing
 combined_data$Bathing <- factor(combined_data$Bathing, 
-                                            levels = c(1, 2, 3),
-                                            labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
+                                levels = c(3, 2, 1),
+                                labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
                                 ordered = TRUE)
 
 # Dressing
 combined_data$Dressing <- factor(combined_data$Dressing, 
-                                levels = c(1, 2, 3),
-                                labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
-                                ordered = TRUE)
+                                 levels = c(3, 2, 1),
+                                 labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
+                                 ordered = TRUE)
 
 # Eating
 combined_data$Eating <- factor(combined_data$Eating, 
-                                 levels = c(1, 2, 3),
-                                 labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
+                               levels = c(3, 2, 1),
+                               labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
                                ordered = TRUE)
 
 # Chairs
 combined_data$Chairs <- factor(combined_data$Chairs, 
-                               levels = c(1, 2, 3),
+                               levels = c(3, 2, 1),
                                labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
                                ordered = TRUE)
 
 # Walking
 combined_data$Walking <- factor(combined_data$Walking, 
-                               levels = c(1, 2, 3),
-                               labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
-                               ordered = TRUE)
+                                levels = c(3, 2, 1),
+                                labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
+                                ordered = TRUE)
 
 # Toilet
 combined_data$Toilet <- factor(combined_data$Toilet, 
-                               levels = c(1, 2, 3),
+                               levels = c(3, 2, 1),
                                labels = c("I am unable to do this activity", "Yes, I have difficulty", "No, I do not have difficulty"),
                                ordered = TRUE)
 
@@ -404,113 +471,81 @@ combined_data$Hypertension <- factor(combined_data$Hypertension,
 
 # angina/cad
 combined_data$ANG_CAD <- factor(combined_data$ANG_CAD, 
-                                     levels = c(1, 2),
-                                     labels = c("Yes", "No"))
+                                levels = c(1, 2),
+                                labels = c("Yes", "No"))
 
 # chf
 combined_data$CHF <- factor(combined_data$CHF, 
-                                     levels = c(1, 2),
-                                     labels = c("Yes", "No"))
+                            levels = c(1, 2),
+                            labels = c("Yes", "No"))
 
 # mi
 combined_data$MI <- factor(combined_data$MI, 
-                                     levels = c(1, 2),
-                                     labels = c("Yes", "No"))
+                           levels = c(1, 2),
+                           labels = c("Yes", "No"))
 
 # other heart conditions
 combined_data$Heart_Other <- factor(combined_data$Heart_Other, 
-                                     levels = c(1, 2),
-                                     labels = c("Yes", "No"))
+                                    levels = c(1, 2),
+                                    labels = c("Yes", "No"))
 
 # Stroke
 combined_data$Stroke <- factor(combined_data$Stroke, 
-                                     levels = c(1, 2),
-                                     labels = c("Yes", "No"))
+                               levels = c(1, 2),
+                               labels = c("Yes", "No"))
 
 # COPD
 combined_data$COPD <- factor(combined_data$COPD, 
-                                     levels = c(1, 2),
-                                     labels = c("Yes", "No"))
+                             levels = c(1, 2),
+                             labels = c("Yes", "No"))
 
 # IBD
 combined_data$IBD <- factor(combined_data$IBD, 
-                                     levels = c(1, 2),
-                                     labels = c("Yes", "No"))
+                            levels = c(1, 2),
+                            labels = c("Yes", "No"))
 
 # Sciatica
 combined_data$Sciatica <- factor(combined_data$Sciatica, 
-                                     levels = c(1, 2),
-                                     labels = c("Yes", "No"))
+                                 levels = c(1, 2),
+                                 labels = c("Yes", "No"))
 
 # Diabetes
 combined_data$Diabetes <- factor(combined_data$Diabetes, 
-                                     levels = c(1, 2),
-                                     labels = c("Yes", "No"))
+                                 levels = c(1, 2),
+                                 labels = c("Yes", "No"))
 
 # cancer
 combined_data$Cancer <- factor(combined_data$Cancer, 
-                                     levels = c(1, 2),
-                                     labels = c("Yes", "No"))
+                               levels = c(1, 2),
+                               labels = c("Yes", "No"))
 
 # current smoker
 combined_data$Smoking_Status <- factor(combined_data$Smoking_Status, 
-                                     levels = c(3, 2, 1),
-                                     labels = c("Not at all", "Some days", "Every day"),
-                                     ordered = TRUE)
+                                       levels = c(3, 2, 1),
+                                       labels = c("Not at all", "Some days", "Every day"),
+                                       ordered = TRUE)
 
 # region
 combined_data$Region <- factor(combined_data$Region, 
-                                     levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-                                     labels = c(
-                                       "Region 1 - Boston (CT, ME, MA, NH, RI, and VT)",
-                                       "Region 2 - New York (NJ, NY, PR, and the VI)",
-                                       "Region 3 - Philadelphia (DC, DE, MD, PA, VA, and WV)",
-                                       "Region 4 - Atlanta (AL, FL, GA, KY, MS, NC, SC, and TN)",
-                                       "Region 5 - Chicago (IL, IN, MI, MN, OH, and WI)",
-                                       "Region 6 - Dallas (AR, LA, NM, OK, and TX)",
-                                       "Region 7 - Kansas City (IA, KS, MO, and NE)",
-                                       "Region 8 - Denver (CO, MT, ND, SD, UT, and WY)",
-                                       "Region 9 - San Francisco (AZ, CA, Guam, HI, and NV)",
-                                       "Region 10 - Seattle (AK, ID, OR, and WA)"))
-
-# Cohort: 0 = 1998 (c1), 1 = 2020 (c23)
-# TODO should i treat as ordinal? i didnt because there's no inherent "ordering" as im doing the comparison over time (time point categories as independent var)
-combined_data$cohort <- factor(combined_data$cohort, 
-                               levels = c(0, 1),
-                               labels = c("Cohort 1 (1998)", "Cohort 23 (2020)"))
-
-for (col in colnames(combined_data)) {
-  # Check its datatypes
-  unique_types <- unique(sapply(combined_data[[col]], typeof))
-  
-  # and print
-  cat("Column:", col, "\n")
-  print(unique_types)
-  cat("\n")
-}
-
-for (col_name in colnames(combined_data)) {
-  unique_values <- unique(combined_data[[col_name]])  # Get unique values for each column
-  print(paste("Unique values in column", col_name, ":"))
-  print(length(unique_values))
-  print(unique_values)
-}
-
-# and read into excel sheet
-# Create a new workbook
-wb <- createWorkbook()
+                               levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+                               labels = c(
+                                 "Region 1 - Boston (CT, ME, MA, NH, RI, and VT)",
+                                 "Region 2 - New York (NJ, NY, PR, and the VI)",
+                                 "Region 3 - Philadelphia (DC, DE, MD, PA, VA, and WV)",
+                                 "Region 4 - Atlanta (AL, FL, GA, KY, MS, NC, SC, and TN)",
+                                 "Region 5 - Chicago (IL, IN, MI, MN, OH, and WI)",
+                                 "Region 6 - Dallas (AR, LA, NM, OK, and TX)",
+                                 "Region 7 - Kansas City (IA, KS, MO, and NE)",
+                                 "Region 8 - Denver (CO, MT, ND, SD, UT, and WY)",
+                                 "Region 9 - San Francisco (AZ, CA, Guam, HI, and NV)",
+                                 "Region 10 - Seattle (AK, ID, OR, and WA)"))
 
 # for factored, relabeled data
 addWorksheet(wb, "categorical")
 writeData(wb, sheet = "categorical", combined_data) 
 
-# for numerical categories version
-addWorksheet(wb, "numerical")
-writeData(wb, sheet = "numerical", combined_data_copy) 
-
 # Save the workbook to a file
-saveWorkbook(wb, file = "combined_data_updated.xlsx", overwrite = TRUE)
+saveWorkbook(wb, file = "combined_data.xlsx", overwrite = TRUE)
 
 rm(wb) # remove workbook object
 gc() # run garbage collection (frees memory)
-
