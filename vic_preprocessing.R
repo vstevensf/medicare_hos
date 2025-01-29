@@ -75,7 +75,7 @@ new_fields <- c(
 ## Remove patients that didn't answer all the questions (NAs/blanks)
 # Checking the datatypes within each column for each cohort -- make sure they match up
 # Loop through each data frame name
-sink("console_output.txt")
+# sink("console_output.txt")
 for (df_name in df_names) {
   # Access the data frame dynamically using `get`
   df <- get(df_name)
@@ -92,7 +92,7 @@ for (df_name in df_names) {
   }
 }
 # all cols are of type integer except CASE_ID & Survey_Disp, which are char
-sink()
+# sink()
 
 # Handle char column = CASE_ID
 # Function to check if a char value is "empty"
