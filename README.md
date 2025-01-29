@@ -1,25 +1,43 @@
-# Medicare HOS -- Propensity Matched Cohort Analysis, 1998 vs 2020
+# Medicare HOS -- Cohort Analysis, 2006 - 2021
 
 ## Table of Contents
 - [Project Description](#project-description)
 - [Features](#features)
 - [Installation](#installation)
+- [Dependencies](#dependencies)
 - [Usage](#usage)
 - [License](#license)
 
 ## Project Description
 
-This is a repo of R files designed for statistical analysis of patient-reported outcome measures (PROMs) over time from [Medicare Health Outcomes Survey database](https://hosonline.org/en/). It includes a set of functions for data cleaning, balance diagnostics, and propensity score matching with covariate adjustment. 
+This is a repo of R files designed for preprocessing of Medicare HOS public use files, for eventual statistical analysis of patient-reported outcome measures (PROMs) over time using survey data from [Medicare Health Outcomes Survey database](https://hosonline.org/en/). It includes a set of functions for data cleaning, [VR12 scoring](https://www.bu.edu/sph/research/centers-and-groups/vr-36-vr-12-and-vr-6d/), and PFADL scoring (TODO). 
+
+📁 medicare_hos/
+
+│── 📁 ascii_to_csv/                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# ASCII to CSV conversion of PUF files
+
+│── 📁 data/raw/                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# CSV versions of PUF files
+
+│── 📁 vr12_excel_data/                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Auxiliary files for VR12 scoring
+
+│── 📄 README.md                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Project overview, installation, usage, and citation
+
+│── 📄 VR12score.R                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# VR12 scoring script from BU
+
+│── 📄 vic_preprocess_VR12.R             &nbsp;&nbsp;# Invokes the above VR12 scoring function
+
+│── 📄 vic_preprocessing.R               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Data cleaning script
+
+│── 📄 vics notes.txt                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Personal notes (ignore)
+
 
 ## Features
 
 - Feature 1: Preprocess datasets from PUFs (public use files)
-    - Preprocessing not included: conversion of ASCII PUF files to csv using [Medicare HOS user manuals](https://hosonline.org/en/data-dissemination/data-users-guides/). Converted PUF csv files used in this analysis can be found in this repo.
-- Feature 2: Baseline imbalance assessment and identification of covariates
-- Feature 3: Propensity score matching between two cohorts of Medicare patients, cohort 1 (1998) and cohort 23 (2020).
-- Feature 4: 
-
-- TODO: visualize data with ggplot2-based plots (2), run regression models with a single function (3)
+    - Conversion of ASCII PUF files to csv using [Medicare HOS user manuals](https://hosonline.org/en/data-dissemination/data-users-guides/). Converted PUF csv files used in this analysis can be found [here](https://drive.google.com/drive/folders/1cQbCXR5yI503vPbaOg4Wgww_7kRdvqcj?usp=sharing).
+- Feature 2: Data cleaning -- include only HKA patients, completed surveys, and self-completed responses
+- Feature 3: VR12 scoring -- using algorithm from BU to calculate PCS (physical component) and MCS (mental component) scores.
+- Feature 4: TODO -- PFADL scoring for ADL survey responses
 
 ## Installation
 
@@ -44,18 +62,21 @@ You can use the `devtools` package to install the project directly from GitHub.
     git clone https://github.com/vstevensf/medicare_hos.git
     ```
 
-2. Open the R project in RStudio or another IDE, and install required dependencies. You can install all packages listed in `DESCRIPTION` or `requirements.R`: TODO edit this
+2. Open the R project in RStudio or another IDE, and install required dependencies (see below).
 
-    ```r
-    install.packages(c("ggplot2", "dplyr", "tidyverse"))  # Add relevant package names
-    ```
+   
+## Dependencies
+
+```r
+install.packages(c("openxlsx", "dplyr"))
+```
 
 ## Usage
 
-R version 4.4.1 (2024-06-14)
+R version 4.4.2 (2024-10-31 ucrt)
 
-### Preprocessing/Data Cleaning
-Files: `vic_preprocessing.R`, `C1_1998_PUF.csv`, `C23A_2020_PUF.csv`
+### PUF file conversions TODO
+Folder: `/ascii_to_csv`, `C1_1998_PUF.csv`, `C23A_2020_PUF.csv`
 
 This script:
 1. reads in the cohort PUF csv files, which contain Medicare patient responses to the Medicare HOS (years: 1998 and 2020) 
