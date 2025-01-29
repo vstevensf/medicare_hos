@@ -112,11 +112,26 @@ The script `vic_preprocessing.R`:
 
 There are two sheets in this workbook, one with the numerical values of survey responses, and an explicit categorical sheet (listing what the numerical responses mean). Documentation on the different columns can be found [here](https://docs.google.com/document/d/1XILRR62jhN0HdO-cWpMc6kSAKw44lF-VoqyIAtt8CQw/edit?usp=sharing).
 
+### VR-12 Scoring
 
-### Propensity Score Matching
-propensity score estimated using logistic regression model in which treatment states is regressed on the measured baseline covariates
+📁 medicare_hos/
 
-propensity score matching by logistic regression using linear terms, no interaction or stratification
+│── 📁 vr12_excel_data/  
+
+│── 📄 VR12score.R 
+
+│── 📄 vic_preprocess_VR12.R 
+
+Using the [VR-12 scoring algorithm](https://www.bu.edu/sph/research/centers-and-groups/vr-36-vr-12-and-vr-6d/) from BU, these scripts determine quantitative scores to estimate the quality of life of the survey respondents. 
+
+The script `vic_preprocess_VR12.R`:
+1. Relabels appropriate columns for later calculations
+2. Invokes the scoring function in `VR12score.R` and the auxiliary files in `vr12_excel_data/` to calculate the numerical VR12 scores for each individual from all cohorts
+3. Saves the VR12 scores to an excel file. This output can be found [here](https://drive.google.com/file/d/1MYLbiqqzRuoKRlvkpwzVnj_b0euYLUzj/view?usp=sharing).
+
+There are two scores, the PCS = physical component, and the MCS = mental component. They are the last two columns in the above output.
+
+### TODO PFADL scoring (sum of ADL survey responses)
 
 ## License
 
