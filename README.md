@@ -4,12 +4,32 @@
 - [Project Description](#project-description)
 - [Features](#features)
 - [Installation](#installation)
+- [Dependencies](#dependencies)
 - [Usage](#usage)
 - [License](#license)
 
 ## Project Description
 
-This is a repo of R files designed for preprocessing of Medicare HOS public use files, for eventual statistical analysis of patient-reported outcome measures (PROMs) over time from [Medicare Health Outcomes Survey database](https://hosonline.org/en/). It includes a set of functions for data cleaning and [VR12 scoring](https://www.bu.edu/sph/research/centers-and-groups/vr-36-vr-12-and-vr-6d/). 
+This is a repo of R files designed for preprocessing of Medicare HOS public use files, for eventual statistical analysis of patient-reported outcome measures (PROMs) over time using survey data from [Medicare Health Outcomes Survey database](https://hosonline.org/en/). It includes a set of functions for data cleaning, [VR12 scoring](https://www.bu.edu/sph/research/centers-and-groups/vr-36-vr-12-and-vr-6d/), and PFADL scoring (TODO). 
+
+📁 medicare_hos/
+
+│── 📁 ascii_to_csv/                     # ASCII to CSV conversion of PUF files
+
+│── 📁 data/raw/                         # CSV versions of PUF files
+
+│── 📁 vr12_excel_data/                  # Auxiliary files for VR12 scoring
+
+│── 📄 README.md                         # Project overview, installation, usage, and citation
+
+│── 📄 VR12score.R                       # VR12 scoring script from BU
+
+│── 📄 vic_preprocess_VR12.R             # Invokes the above VR12 scoring function
+
+│── 📄 vic_preprocessing.R               # Data cleaning script
+
+│── 📄 vics notes.txt                    # Personal notes (ignore)
+
 
 ## Features
 
@@ -47,16 +67,16 @@ You can use the `devtools` package to install the project directly from GitHub.
    
 ## Dependencies
 
-    ```r
-    install.packages(c("openxlsx", "dplyr"))  # Add relevant package names
-    ```
+```r
+install.packages(c("openxlsx", "dplyr"))
+```
 
 ## Usage
 
 R version 4.4.2 (2024-10-31 ucrt)
 
 ### PUF file conversions TODO
-Files: `vic_preprocessing.R`, `C1_1998_PUF.csv`, `C23A_2020_PUF.csv`
+Folder: `/ascii_to_csv`, `C1_1998_PUF.csv`, `C23A_2020_PUF.csv`
 
 This script:
 1. reads in the cohort PUF csv files, which contain Medicare patient responses to the Medicare HOS (years: 1998 and 2020) 
