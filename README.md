@@ -14,21 +14,21 @@ This is a repo of R files designed for preprocessing of Medicare HOS public use 
 
 📁 medicare_hos/
 
-│── 📁 ascii_to_csv/                     # ASCII to CSV conversion of PUF files
+│── 📁 ascii_to_csv/                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# ASCII to CSV conversion of PUF files
 
-│── 📁 data/raw/                         # CSV versions of PUF files
+│── 📁 data/raw/                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# CSV versions of PUF files
 
-│── 📁 vr12_excel_data/                  # Auxiliary files for VR12 scoring
+│── 📁 vr12_excel_data/                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Auxiliary files for VR12 scoring
 
-│── 📄 README.md                         # Project overview, installation, usage, and citation
+│── 📄 README.md                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Project overview, installation, usage, and citation
 
-│── 📄 VR12score.R                       # VR12 scoring script from BU
+│── 📄 VR12score.R                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# VR12 scoring script from BU
 
-│── 📄 vic_preprocess_VR12.R             # Invokes the above VR12 scoring function
+│── 📄 vic_preprocess_VR12.R             &nbsp;&nbsp;# Invokes the above VR12 scoring function
 
-│── 📄 vic_preprocessing.R               # Data cleaning script
+│── 📄 vic_preprocessing.R               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Data cleaning script
 
-│── 📄 vics notes.txt                    # Personal notes (ignore)
+│── 📄 vics notes.txt                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Personal notes (ignore)
 
 
 ## Features
