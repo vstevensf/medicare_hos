@@ -34,7 +34,7 @@ This is a repo of R files designed for preprocessing of Medicare HOS public use 
 ## Features
 
 - Feature 1: Preprocess datasets from PUFs (public use files)
-    - Conversion of ASCII PUF files to csv using [Medicare HOS user manuals](https://hosonline.org/en/data-dissemination/data-users-guides/). Converted PUF csv files can be found [here](https://drive.google.com/drive/folders/1cQbCXR5yI503vPbaOg4Wgww_7kRdvqcj?usp=sharing).
+    - Conversion of ASCII PUF files to csv using guidelines detailed in the [Medicare HOS user manuals](https://hosonline.org/en/data-dissemination/data-users-guides/). Converted PUF csv files can be found [here](https://drive.google.com/drive/folders/1cQbCXR5yI503vPbaOg4Wgww_7kRdvqcj?usp=sharing).
 - Feature 2: Data cleaning -- include only HKA patients, completed surveys, self-completed responses, etc.
 - Feature 3: VR12 scoring -- using algorithm from BU to calculate PCS (physical component) and MCS (mental component) scores.
 - Feature 4: TODO -- PFADL scoring for ADL survey responses
