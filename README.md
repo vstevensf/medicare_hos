@@ -75,14 +75,15 @@ install.packages(c("openxlsx", "dplyr"))
 
 R version 4.4.2 (2024-10-31 ucrt)
 
-### PUF file conversions TODO
+### PUF file conversions
+
 📁 medicare_hos/
 
 │── 📁 ascii_to_csv/  
 
 │   │── 📁 conversion scripts/ 
 
-│   │── 📁 raw_asci_pufs/ 
+│   │── 📁 raw_ascii_pufs/ 
 
 The scripts in `conversion_scripts/`:
 1. Read in the corresponding cohort PUF csv files in `raw_asci_pufs/`, which contain Medicare patient responses to the Medicare HOS (cohorts 2006 - 2019)
@@ -93,20 +94,24 @@ The scripts are specific to certain cohorts, as detailed in the name (2006 - 200
 
 CSV files are available in `medicare_hos/data/raw`.
 
-### Baseline Imbalance Assessment + 
+### Preprocessing of CSV files
 
+📁 medicare_hos/
 
-3. checks for empty values and removes those records
-4. extracts HKA (hip and knee arthritis) patients
-5. removes certain categories (disability/<65 years old, unknown smoking status, etc.)
+│── 📁 data/raw/  
 
-6. 
-1. initial imbalance assessment
-2. ddd
-3. Standardized mean difference analysis to assess covariate balance (> .1 --> index of residual imbalance)
-4. TODO; graphical diagnostics to assess covariate balance --> a) mirrored histogram for distribution of propensity score in the original and matched groups, b) Love plot of the SMDs for quick overview of balance
+│── 📄 vic_preprocessing.R 
 
-basically, the propensity score is a "balancing score" such that baseline covariate distribution is the same across treatment arms
+The script `vic_preprocessing.R`:
+1. Reads in the CSV PUF files from `data/raw`
+2. Checks for empty values and removes those records -- to avoid imputation later on
+3. Extracts HKA (hip and knee arthritis) patients
+4. Removes certain categories (disability/<65 years old, unknown smoking status, etc.)
+5. Factors the ordinal categories, and combines all cohorts into one dataframe
+6. Saves the cleaned dataframe to an excel workbook (combined_data.xlsx), which can be found [here](https://docs.google.com/spreadsheets/d/1h7rcIPigpyFxcmXMMJnIhwXuUIAod5By/edit?usp=sharing&ouid=105898128966506207562&rtpof=true&sd=true).
+
+There are two sheets in this workbook, one with the numerical values of survey responses, and an explicit categorical sheet (listing what the numerical responses mean). Documentation on the different columns can be found [here](https://docs.google.com/document/d/1XILRR62jhN0HdO-cWpMc6kSAKw44lF-VoqyIAtt8CQw/edit?usp=sharing).
+
 
 ### Propensity Score Matching
 propensity score estimated using logistic regression model in which treatment states is regressed on the measured baseline covariates
