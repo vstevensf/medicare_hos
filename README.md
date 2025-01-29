@@ -92,7 +92,7 @@ The scripts in `conversion_scripts/`:
 
 The scripts are specific to certain cohorts, as detailed in the name (2006 - 2007, 2008 - 2012, 2013 - 2014, and 2015 - 2019). The 2020 - 2021 cohorts were available as CSVs.
 
-CSV files are available in `medicare_hos/data/raw`.
+CSV files are available in `medicare_hos/data/raw`, and/or [here](https://drive.google.com/drive/folders/1cQbCXR5yI503vPbaOg4Wgww_7kRdvqcj?usp=sharing).
 
 ### Preprocessing of CSV files
 
