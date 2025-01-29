@@ -34,8 +34,8 @@ This is a repo of R files designed for preprocessing of Medicare HOS public use 
 ## Features
 
 - Feature 1: Preprocess datasets from PUFs (public use files)
-    - Conversion of ASCII PUF files to csv using [Medicare HOS user manuals](https://hosonline.org/en/data-dissemination/data-users-guides/). Converted PUF csv files used in this analysis can be found [here](https://drive.google.com/drive/folders/1cQbCXR5yI503vPbaOg4Wgww_7kRdvqcj?usp=sharing).
-- Feature 2: Data cleaning -- include only HKA patients, completed surveys, and self-completed responses
+    - Conversion of ASCII PUF files to csv using [Medicare HOS user manuals](https://hosonline.org/en/data-dissemination/data-users-guides/). Converted PUF csv files can be found [here](https://drive.google.com/drive/folders/1cQbCXR5yI503vPbaOg4Wgww_7kRdvqcj?usp=sharing).
+- Feature 2: Data cleaning -- include only HKA patients, completed surveys, self-completed responses, etc.
 - Feature 3: VR12 scoring -- using algorithm from BU to calculate PCS (physical component) and MCS (mental component) scores.
 - Feature 4: TODO -- PFADL scoring for ADL survey responses
 
@@ -76,16 +76,31 @@ install.packages(c("openxlsx", "dplyr"))
 R version 4.4.2 (2024-10-31 ucrt)
 
 ### PUF file conversions TODO
-Folder: `/ascii_to_csv`, `C1_1998_PUF.csv`, `C23A_2020_PUF.csv`
+📁 medicare_hos/
 
-This script:
-1. reads in the cohort PUF csv files, which contain Medicare patient responses to the Medicare HOS (years: 1998 and 2020) 
-2. extracts relevant columns containing demographic information and PROMs
-3. standardizes scoring of certain categorical variables
-4. checks for empty values and removes those records
+│── 📁 ascii_to_csv/  
+
+│   │── 📁 conversion scripts/ 
+
+│   │── 📁 raw_asci_pufs/ 
+
+The scripts in `conversion_scripts/`:
+1. Read in the corresponding cohort PUF csv files in `raw_asci_pufs/`, which contain Medicare patient responses to the Medicare HOS (cohorts 2006 - 2019)
+2. Extract relevant columns containing demographic/socioeconomic information, chronic conditions/comorbidities, PROMs, ADLs and HOS study design variables
+3. Output the data in CSV form
+
+The scripts are specific to certain cohorts, as detailed in the name (2006 - 2007, 2008 - 2012, 2013 - 2014, and 2015 - 2019). The 2020 - 2021 cohorts were available as CSVs.
+
+CSV files are available in `medicare_hos/data/raw`.
 
 ### Baseline Imbalance Assessment + 
 
+
+3. checks for empty values and removes those records
+4. extracts HKA (hip and knee arthritis) patients
+5. removes certain categories (disability/<65 years old, unknown smoking status, etc.)
+
+6. 
 1. initial imbalance assessment
 2. ddd
 3. Standardized mean difference analysis to assess covariate balance (> .1 --> index of residual imbalance)
