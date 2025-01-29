@@ -86,7 +86,7 @@ R version 4.4.2 (2024-10-31 ucrt)
 │   │── 📁 raw_ascii_pufs/ 
 
 The scripts in `conversion_scripts/`:
-1. Read in the corresponding cohort PUF csv files in `raw_asci_pufs/`, which contain Medicare patient responses to the Medicare HOS (cohorts 2006 - 2019)
+1. Read in the corresponding cohort PUF txt (ascii) files in `raw_ascii_pufs/`, which contain Medicare patient responses to the Medicare HOS (cohorts 2006 - 2019)
 2. Extract relevant columns containing demographic/socioeconomic information, chronic conditions/comorbidities, PROMs, ADLs and HOS study design variables
 3. Output the data in CSV form
 
